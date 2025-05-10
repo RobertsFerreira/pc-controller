@@ -1,9 +1,12 @@
 use axum::{
-    extract::ws::{WebSocket, WebSocketUpgrade},
+    extract::ws::{Message, WebSocket, WebSocketUpgrade},
     response::IntoResponse,
     routing::get,
     Router,
 };
+
+pub mod modules;
+use crate::modules::volume_control::device_controller;
 
 #[tokio::main]
 async fn main() {
@@ -24,16 +27,49 @@ async fn ws_handler(ws: WebSocketUpgrade) -> impl IntoResponse {
 }
 
 async fn handle_socket(mut socket: WebSocket) {
-    while let Some(msg) = socket.recv().await {
-        let msg = if let Ok(msg) = msg {
-            msg
+    while let Some(msg_received) = socket.recv().await {
+        let message_send = if let Ok(extracted_message) = msg_received {
+            handle_message(extracted_message).await
         } else {
             println!("Client disconnected");
             return;
         };
-        if socket.send(msg).await.is_err() {
+        if socket.send(message_send).await.is_err() {
             println!("Client disconnected");
             return;
         }
+    }
+}
+
+// Handle incoming messages from the client
+async fn handle_message(msg: Message) -> Message {
+    let message_send = msg
+        .to_text()
+        .unwrap_or_else(|_| "Error converting message to text");
+
+    if message_send == "get_volume" {
+        let message = device_controller::get_actual_volume()
+            .map(|volume| format!("Volume: {volume}"))
+            .unwrap_or_else(|e| {
+                println!("Error getting volume: {e}");
+                "Error getting volume".to_string()
+            });
+        Message::text(message)
+    } else if message_send == "list_devices" {
+        let message = device_controller::list_output_devices().map(|devices| {
+            devices
+                .iter()
+                .map(|device| format!("{}", device))
+                .collect::<Vec<_>>()
+                .join("\n")
+        });
+        let message_send = message.unwrap_or_else(|e| {
+            println!("Error listing devices: {e}");
+            "Error listing devices".to_string()
+        });
+        Message::text(message_send)
+    } else {
+        println!("Received message: {}", message_send);
+        msg
     }
 }
