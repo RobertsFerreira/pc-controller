@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use windows::{
     core::*,
     Win32::{
@@ -19,6 +19,12 @@ pub struct DeviceSound {
     pub id: String,
     pub name: String,
     pub endpoint: IMMDevice,
+}
+
+impl Display for DeviceSound {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Device Name: {}", self.name)
+    }
 }
 
 // This function initializes COM Interface.
