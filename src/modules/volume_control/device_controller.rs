@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display};
+use crate::modules::volume_control::models::device_sound::DeviceSound;
 use windows::{
     core::*,
     Win32::{
@@ -12,21 +12,6 @@ use windows::{
         // System::Variant::VT_LPWSTR,
     },
 };
-
-//Device Model definition
-#[derive(Debug)]
-pub struct DeviceSound {
-    pub id: String,
-    pub name: String,
-    pub endpoint: IMMDevice,
-}
-
-impl Display for DeviceSound {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Device Name: {}", self.name)
-    }
-}
-
 // This function initializes COM Interface.
 fn initialize() -> Result<()> {
     unsafe {
