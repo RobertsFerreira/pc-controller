@@ -1,0 +1,18 @@
+meta {
+  name: list devices
+  type: ws
+  seq: 1
+}
+
+ws {
+  url: {{baseUrl}}/ws
+  body: ws
+  auth: none
+}
+
+body:ws {
+  name: message 1
+  content: '''
+    get_volume
+  '''
+}
