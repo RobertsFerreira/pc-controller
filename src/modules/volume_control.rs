@@ -1,2 +1,2 @@
 pub mod device_controller;
-mod models;
+pub mod models;
