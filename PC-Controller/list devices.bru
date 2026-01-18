@@ -12,7 +12,10 @@ ws {
 
 body:ws {
   name: message 1
+  type: json
   content: '''
-    get_volume
+    {
+    "action": "devices_list"
+    }
   '''
 }
