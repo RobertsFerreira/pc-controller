@@ -3,6 +3,7 @@ use crate::modules::volume_control::models::{
     session_sound::{SessionSound, SessionState},
     SessionError, SessionResult,
 };
+
 use std::path::PathBuf;
 use windows::{
     core::*,
@@ -84,70 +85,84 @@ pub fn get_actual_volume() -> Result<f32> {
     Ok(result)
 }
 
-pub fn list_sessions_for_device(device_id: &str) -> SessionResult<Vec<SessionSound>> {
-    if device_id.trim().is_empty() {
-        return Err(SessionError::InvalidDeviceId);
-    }
-
-    initialize().map_err(SessionError::ComInitFailed)?;
-
+pub fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
     unsafe {
         let device_enumerator: IMMDeviceEnumerator =
             CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
 
-        let device_collection: IMMDeviceCollection =
-            device_enumerator.EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE)?;
-        let device_count = device_collection.GetCount()?;
-
-        if device_count == 0 {
-            return Err(SessionError::NoSessionsFound);
-        }
-
-        let mut target_device: Option<IMMDevice> = None;
-        for index in 0..device_count {
-            let device: IMMDevice = device_collection.Item(index)?;
-            let id = device.GetId()?;
-            let id_str = id.to_string()?;
-
-            if id_str == device_id {
-                target_device = Some(device);
-                break;
+        let wide_id: Vec<u16> = device_id.encode_utf16().chain(std::iter::once(0)).collect();
+        let device = device_enumerator.GetDevice(PCWSTR(wide_id.as_ptr()));
+        match device {
+            Ok(device) => {
+                let id = device.GetId()?.to_string();
+                let property_store = device.OpenPropertyStore(STGM_READ)?;
+                let name_value: PROPVARIANT = property_store.GetValue(&PKEY_Device_FriendlyName)?;
+                let device_name = name_value.to_string();
+                uninitialize();
+                Ok(DeviceSound {
+                    id: id.unwrap_or_default(),
+                    name: device_name.clone(),
+                    endpoint: device.clone(),
+                })
             }
+            Err(_) => Err(SessionError::DeviceNotFound {
+                device_id: device_id.to_string(),
+            }),
         }
+    }
+}
 
-        let device = target_device.ok_or_else(|| SessionError::DeviceNotFound {
-            device_id: device_id.to_string(),
-        })?;
+pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionSound>> {
+    initialize()?;
+    let device = get_device_by_id(device_id);
+    match device {
+        Ok(device) => unsafe {
+            let sessions = device
+                .endpoint
+                .Activate::<IAudioSessionManager2>(CLSCTX_ALL, None);
+            let session = match sessions {
+                Ok(session) => session,
+                Err(_) => return Ok(vec![]),
+            };
+            let session_enum = session.GetSessionEnumerator()?;
+            let count = session_enum.GetCount()?;
 
-        let session_manager: IAudioSessionManager2 = device
-            .Activate(CLSCTX_ALL, None)
-            .map_err(SessionError::SessionManagerFailed)?;
+            let mut sessions = Vec::new();
+            for i in 0..count {
+                let session = session_enum.GetSession(i)?;
+                let session2: IAudioSessionControl2 = session.cast()?;
 
-        let session_enumerator: IAudioSessionEnumerator = session_manager
-            .GetSessionEnumerator()
-            .map_err(SessionError::SessionEnumFailed)?;
+                let process_id = session2.GetProcessId()?;
 
-        let session_count = session_enumerator.GetCount()?;
+                let simple_volume: ISimpleAudioVolume = session2.cast()?;
+                let volume_level = simple_volume.GetMasterVolume()?;
+                let display_name = match session2.GetDisplayName() {
+                    Ok(name) => {
+                        if name.is_empty() {
+                            String::from("Unknown")
+                        } else {
+                            name.to_string()?
+                        }
+                    }
+                    Err(_) => String::from("Unknown"),
+                };
 
-        if session_count == 0 {
-            return Err(SessionError::NoSessionsFound);
-        }
-
-        let mut sessions: Vec<SessionSound> = Vec::new();
-        for index in 0..session_count {
-            if let Ok(session) = session_enumerator.GetSession(index) {
-                let session_control: IAudioSessionControl2 = session.cast()?;
-                let session_info = get_session_info(session_control)?;
-                sessions.push(session_info);
+                sessions.push(SessionSound {
+                    id: format!("session-{}", i),
+                    process_id,
+                    display_name: display_name,
+                    volume_level,
+                    icon_path: None,
+                    state: SessionState::Active,
+                });
             }
-        }
 
-        if sessions.is_empty() {
-            return Err(SessionError::NoSessionsFound);
+            Ok(sessions)
+        },
+        Err(e) => {
+            uninitialize();
+            Err(e)
         }
-
-        uninitialize();
-        Ok(sessions)
     }
 }
 
