@@ -1,24 +1,32 @@
-use crate::modules::volume_control::models::session_sound::SessionSound;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Deserialize)]
-pub struct SessionListRequest {
-    pub action: String,
-    pub device_id: String,
-}
+use crate::modules::volume_control::models::{device_sound::DeviceSound, session_sound::AppAudio};
+use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-pub struct SessionListResponse {
-    pub data: Vec<SessionSound>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub headers: Option<ResponseHeaders>,
+pub struct VolumeResponseHeaders {
+    pub timestamp: u64,
+}
+#[derive(Debug, Serialize)]
+pub struct VolumeResponse {
+    pub data: f32,
+    pub headers: VolumeResponseHeaders,
 }
 
 #[derive(Debug, Serialize)]
 pub struct ResponseHeaders {
     pub timestamp: u64,
-    pub device_id: String,
-    pub session_count: usize,
+    pub count: usize,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SessionListResponse {
+    pub data: Vec<AppAudio>,
+    pub headers: ResponseHeaders,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DeviceListResponse {
+    pub data: Vec<DeviceSound>,
+    pub headers: ResponseHeaders,
 }
 
 #[derive(Debug, Serialize)]
