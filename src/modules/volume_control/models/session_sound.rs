@@ -1,15 +1,13 @@
 use serde::Serialize;
-use std::path::PathBuf;
 use windows::Win32::Media::Audio::AudioSessionState;
 
 #[derive(Debug, Serialize)]
-pub struct SessionSound {
+pub struct SessionGroup {
     pub id: String,
     pub display_name: String,
-    pub process_id: u32,
     pub volume_level: f32,
     pub state: SessionState,
-    pub icon_path: Option<PathBuf>,
+    pub muted: bool,
 }
 
 #[derive(Debug, Serialize)]

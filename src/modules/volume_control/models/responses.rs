@@ -1,8 +1,9 @@
 use crate::modules::volume_control::models::{
-    device_sound::DeviceSound, session_sound::SessionSound,
+    device_sound::DeviceSound, session_sound::SessionGroup,
 };
 use serde::Serialize;
 
+//------------Volume current output sound---------------//
 #[derive(Debug, Serialize)]
 pub struct VolumeResponseHeaders {
     pub timestamp: u64,
@@ -13,24 +14,28 @@ pub struct VolumeResponse {
     pub headers: VolumeResponseHeaders,
 }
 
+//-----------Base Response----------------//
 #[derive(Debug, Serialize)]
 pub struct ResponseHeaders {
     pub timestamp: u64,
     pub count: usize,
 }
 
+//---------------- Session List Response ----------------//
 #[derive(Debug, Serialize)]
 pub struct SessionListResponse {
-    pub data: Vec<SessionSound>,
+    pub data: Vec<SessionGroup>,
     pub headers: ResponseHeaders,
 }
 
+//---------------- Device List Response ----------------//
 #[derive(Debug, Serialize)]
 pub struct DeviceListResponse {
     pub data: Vec<DeviceSound>,
     pub headers: ResponseHeaders,
 }
 
+//---------------- Error Response ----------------//
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
     pub code: u16,

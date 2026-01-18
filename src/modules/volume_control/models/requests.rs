@@ -5,5 +5,12 @@ use serde::{Deserialize, Serialize};
 pub enum ActionRequest {
     GetVolume,
     DevicesList,
-    SessionList { device_id: String },
+    SessionList {
+        device_id: String,
+    },
+    SetGroupVolume {
+        device_id: String,
+        group_id: String,
+        volume: f32,
+    },
 }

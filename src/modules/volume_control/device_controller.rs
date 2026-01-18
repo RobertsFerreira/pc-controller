@@ -1,22 +1,25 @@
 use crate::modules::volume_control::models::{
     device_sound::DeviceSound,
-    session_sound::{SessionSound, SessionState},
+    session_sound::{SessionGroup, SessionState},
     SessionError, SessionResult,
 };
 
-use std::path::PathBuf;
+use std::{collections::HashMap, path::Path};
 use windows::{
     core::*,
     Win32::{
         Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
+        Foundation::CloseHandle,
         Media::Audio::{Endpoints::IAudioEndpointVolume, *},
         System::Com::{
             CoCreateInstance, CoInitializeEx, CoUninitialize, StructuredStorage::PROPVARIANT,
             CLSCTX_ALL, COINIT_MULTITHREADED, STGM_READ,
         },
+        System::Threading::*,
     },
 };
 
+/// Manager COM library
 fn initialize() -> Result<()> {
     unsafe {
         CoInitializeEx(None, COINIT_MULTITHREADED).ok()?;
@@ -26,6 +29,38 @@ fn initialize() -> Result<()> {
 
 fn uninitialize() {
     unsafe { CoUninitialize() };
+}
+
+// Map process ID to friendly name
+fn get_friendly_process_name(pid: u32) -> Result<String> {
+    unsafe {
+        let process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid)?;
+
+        let mut buffer = [0u16; 1024];
+        let mut size = buffer.len() as u32;
+
+        QueryFullProcessImageNameW(
+            process_handle,
+            PROCESS_NAME_WIN32,
+            PWSTR(buffer.as_mut_ptr()),
+            &mut size,
+        )?;
+
+        let path = String::from_utf16_lossy(&buffer[..size as usize]);
+        let _ = CloseHandle(process_handle);
+
+        Ok(extract_simple_name(&path))
+    }
+}
+
+fn extract_simple_name(path: &str) -> String {
+    let path_obj = Path::new(path);
+    path_obj
+        .file_name()
+        .and_then(|f| f.to_str())
+        .unwrap_or("Unknown")
+        .trim_end_matches(".exe")
+        .to_string()
 }
 
 pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
@@ -64,6 +99,7 @@ pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
     }
 }
 
+// Get the actual system volume (master volume)
 pub fn get_actual_volume() -> Result<f32> {
     initialize()?;
     let result = unsafe {
@@ -112,52 +148,37 @@ pub fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
     }
 }
 
-pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionSound>> {
+pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup>> {
     initialize()?;
     let device = get_device_by_id(device_id);
     match device {
         Ok(device) => unsafe {
-            let sessions = device
-                .endpoint
-                .Activate::<IAudioSessionManager2>(CLSCTX_ALL, None);
-            let session = match sessions {
-                Ok(session) => session,
-                Err(_) => return Ok(vec![]),
-            };
-            let session_enum = session.GetSessionEnumerator()?;
+            let session_manager: IAudioSessionManager2 =
+                device.endpoint.Activate(CLSCTX_ALL, None)?;
+
+            let session_enum = session_manager.GetSessionEnumerator()?;
             let count = session_enum.GetCount()?;
 
-            let mut sessions = Vec::new();
+            let mut groups: HashMap<GUID, Vec<IAudioSessionControl2>> = HashMap::new();
+
             for i in 0..count {
                 let session = session_enum.GetSession(i)?;
                 let session2: IAudioSessionControl2 = session.cast()?;
 
-                let process_id = session2.GetProcessId()?;
+                let guid = session2.GetGroupingParam()?;
 
-                let simple_volume: ISimpleAudioVolume = session2.cast()?;
-                let volume_level = simple_volume.GetMasterVolume()?;
-                let display_name = match session2.GetDisplayName() {
-                    Ok(name) => {
-                        if name.is_empty() {
-                            String::from("Unknown")
-                        } else {
-                            name.to_string()?
-                        }
-                    }
-                    Err(_) => String::from("Unknown"),
-                };
-
-                sessions.push(SessionSound {
-                    id: format!("session-{}", i),
-                    process_id,
-                    display_name: display_name,
-                    volume_level,
-                    icon_path: None,
-                    state: SessionState::Active,
-                });
+                groups.entry(guid).or_default().push(session2);
             }
 
-            Ok(sessions)
+            let mut session_groups = Vec::new();
+            for (guid, sessions) in groups {
+                if let Some(group) = create_session_group_from_guid(guid, sessions) {
+                    session_groups.push(group);
+                }
+            }
+
+            uninitialize();
+            Ok(session_groups)
         },
         Err(e) => {
             uninitialize();
@@ -166,54 +187,105 @@ pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionSound
     }
 }
 
-fn get_session_info(session_control: IAudioSessionControl2) -> SessionResult<SessionSound> {
+fn create_session_group_from_guid(
+    guid: GUID,
+    sessions: Vec<IAudioSessionControl2>,
+) -> Option<SessionGroup> {
     unsafe {
-        let display_name = session_control.GetDisplayName()?;
-        let display_name_str = pwstr_to_string(&display_name);
+        let first = &sessions[0];
 
-        let process_id = session_control.GetProcessId().unwrap_or(0);
+        let pid = first.GetProcessId().ok()?;
+        let display_name = match get_friendly_process_name(pid) {
+            Ok(name) => name,
+            Err(_) => format!("PID {}", pid),
+        };
 
-        let state = session_control.GetState().unwrap_or(AudioSessionState(2));
-        let session_state: SessionState = state.into();
+        let mut total_volume = 0.0f32;
+        let mut active_count = 0;
+        let mut is_muted = false;
+        let mut has_active = false;
 
-        let simple_volume: ISimpleAudioVolume = session_control.cast()?;
-        let volume = simple_volume.GetMasterVolume().unwrap_or(0.0);
-        let volume_level = if volume.is_nan() { 0.0 } else { volume * 100.0 };
+        for session in &sessions {
+            let simple_volume: ISimpleAudioVolume = session.cast().ok()?;
+            let volume = simple_volume.GetMasterVolume().ok()?;
 
-        let icon_path = get_session_icon_path(&session_control);
+            if !volume.is_nan() {
+                total_volume += volume;
+                active_count += 1;
+            }
 
-        let session_id = format!("session-{}-{}", process_id, volume_level as u32);
+            let muted = simple_volume.GetMute().ok()?;
+            is_muted = is_muted || muted.as_bool();
 
-        Ok(SessionSound {
-            id: session_id,
-            display_name: display_name_str,
-            process_id,
-            volume_level,
-            state: session_state,
-            icon_path,
+            let state = session.GetState().ok()?;
+            if state.0 == 0 {
+                has_active = true;
+            }
+        }
+
+        let avg_volume = if active_count > 0 {
+            (total_volume / active_count as f32) * 100.0
+        } else {
+            0.0
+        };
+
+        let group_state = if has_active {
+            SessionState::Active
+        } else {
+            SessionState::Inactive
+        };
+
+        let id = format!("{:?}", guid);
+
+        Some(SessionGroup {
+            id,
+            display_name,
+            volume_level: avg_volume,
+            state: group_state,
+            muted: is_muted,
         })
     }
 }
 
-fn get_session_icon_path(session_control: &IAudioSessionControl2) -> Option<PathBuf> {
-    unsafe {
-        let display_name = session_control.GetDisplayName().ok()?;
-        let name_str = pwstr_to_string(&display_name);
+pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> SessionResult<()> {
+    initialize()?;
+    let device = get_device_by_id(device_id);
+    match device {
+        Ok(device) => unsafe {
+            let session_manager: IAudioSessionManager2 =
+                device.endpoint.Activate(CLSCTX_ALL, None)?;
 
-        if !name_str.is_empty() {
-            return Some(PathBuf::from(name_str));
-        }
-        None
-    }
-}
+            let session_enum = session_manager.GetSessionEnumerator()?;
+            let count = session_enum.GetCount()?;
 
-fn pwstr_to_string(pwstr: &PWSTR) -> String {
-    unsafe {
-        if pwstr.is_null() {
-            return String::new();
+            let mut found_sessions = 0;
+            let volume_scalar = (volume / 100.0).clamp(0.0, 1.0);
+
+            for i in 0..count {
+                let session = session_enum.GetSession(i)?;
+                let session2: IAudioSessionControl2 = session.cast()?;
+
+                let guid = session2.GetGroupingParam()?;
+
+                let guid_str = format!("{:?}", guid);
+                if guid_str == group_id {
+                    let simple_volume: ISimpleAudioVolume = session2.cast()?;
+                    simple_volume.SetMasterVolume(volume_scalar, std::ptr::null())?;
+                    found_sessions += 1;
+                }
+            }
+
+            if found_sessions == 0 {
+                uninitialize();
+                return Err(SessionError::NoSessionsFound);
+            }
+
+            uninitialize();
+            Ok(())
+        },
+        Err(e) => {
+            uninitialize();
+            Err(e)
         }
-        let len = (0..).take_while(|&i| *pwstr.0.offset(i) != 0).count();
-        let slice = std::slice::from_raw_parts(pwstr.0, len);
-        String::from_utf16_lossy(slice)
     }
 }

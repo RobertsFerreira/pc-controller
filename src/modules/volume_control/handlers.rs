@@ -21,6 +21,11 @@ pub async fn handle_message(msg: Message) -> Message {
         Ok(ActionRequest::SessionList { device_id }) => {
             return handle_list_sessions(device_id).await
         }
+        Ok(ActionRequest::SetGroupVolume {
+            device_id,
+            group_id,
+            volume,
+        }) => return handle_set_group_volume(device_id, group_id, volume).await,
         Err(e) => {
             tracing::error!("Failed to deserialize action request: {:?}", e);
             return create_error_response(error_codes::BAD_REQUEST, &e.to_string());
@@ -67,6 +72,17 @@ pub async fn handle_list_sessions(device_id: String) -> Message {
     }
 }
 
+pub async fn handle_set_group_volume(device_id: String, group_id: String, volume: f32) -> Message {
+    match set_group_volume_response(device_id, group_id, volume).await {
+        Ok(response) => Message::text(response),
+        Err(e) => {
+            tracing::error!("Failed to set group volume: {:?}", e);
+            let (code, details) = error_response_from_anyhow(&e);
+            create_error_response_with_details(code, &e.to_string(), details)
+        }
+    }
+}
+
 async fn list_sessions_response(device_id: String) -> Result<String> {
     let sessions = device_controller::get_session_for_device(&device_id)
         .context("Failed to get sessions for device")?;
@@ -83,6 +99,27 @@ async fn list_sessions_response(device_id: String) -> Result<String> {
         data: sessions,
         headers: headers,
     };
+
+    serde_json::to_string(&response).context("Failed to serialize response")
+}
+
+async fn set_group_volume_response(
+    device_id: String,
+    group_id: String,
+    volume: f32,
+) -> Result<String> {
+    device_controller::set_group_volume(&group_id, &device_id, volume)
+        .context("Failed to set group volume")?;
+
+    let response = serde_json::json!({
+        "data": { "success": true, "volume": volume },
+        "headers": {
+            "timestamp": std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs()
+        }
+    });
 
     serde_json::to_string(&response).context("Failed to serialize response")
 }
