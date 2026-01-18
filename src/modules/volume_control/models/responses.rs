@@ -1,4 +1,6 @@
-use crate::modules::volume_control::models::{device_sound::DeviceSound, session_sound::AppAudio};
+use crate::modules::volume_control::models::{
+    device_sound::DeviceSound, session_sound::SessionSound,
+};
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
@@ -19,7 +21,7 @@ pub struct ResponseHeaders {
 
 #[derive(Debug, Serialize)]
 pub struct SessionListResponse {
-    pub data: Vec<AppAudio>,
+    pub data: Vec<SessionSound>,
     pub headers: ResponseHeaders,
 }
 
