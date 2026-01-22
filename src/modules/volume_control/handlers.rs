@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use axum::extract::ws::Message;
 
+use crate::modules::helper;
 use crate::modules::volume_control::device_controller;
 use crate::modules::volume_control::models::requests::ActionRequest;
 use crate::modules::volume_control::models::responses::{
@@ -16,19 +17,17 @@ pub async fn handle_message(msg: Message) -> Message {
         .context("Failed to deserialize incoming message to ActionRequest");
 
     match action_request {
-        Ok(ActionRequest::GetVolume) => return handle_get_volume().await,
-        Ok(ActionRequest::DevicesList) => return handle_list_devices().await,
-        Ok(ActionRequest::SessionList { device_id }) => {
-            return handle_list_sessions(device_id).await
-        }
+        Ok(ActionRequest::GetVolume) => handle_get_volume().await,
+        Ok(ActionRequest::DevicesList) => handle_list_devices().await,
+        Ok(ActionRequest::SessionList { device_id }) => handle_list_sessions(device_id).await,
         Ok(ActionRequest::SetGroupVolume {
             device_id,
             group_id,
             volume,
-        }) => return handle_set_group_volume(device_id, group_id, volume).await,
+        }) => handle_set_group_volume(device_id, group_id, volume).await,
         Err(e) => {
             tracing::error!("Failed to deserialize action request: {:?}", e);
-            return create_error_response(error_codes::BAD_REQUEST, &e.to_string());
+            create_error_response(error_codes::BAD_REQUEST, &e.to_string())
         }
     }
 }
@@ -47,15 +46,12 @@ async fn get_volume_response() -> Result<String> {
     let volume = device_controller::get_actual_volume().context("Failed to get volume")?;
 
     let headers = VolumeResponseHeaders {
-        timestamp: std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs(),
+        timestamp: helper::get_timestamp(),
     };
 
     let response = VolumeResponse {
         data: volume,
-        headers: headers,
+        headers,
     };
 
     serde_json::to_string(&response).context("Failed to serialize volume response")
@@ -88,16 +84,13 @@ async fn list_sessions_response(device_id: String) -> Result<String> {
         .context("Failed to get sessions for device")?;
 
     let headers = ResponseHeaders {
-        timestamp: std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs(),
+        timestamp: helper::get_timestamp(),
         count: sessions.len(),
     };
 
     let response = SessionListResponse {
         data: sessions,
-        headers: headers,
+        headers,
     };
 
     serde_json::to_string(&response).context("Failed to serialize response")
@@ -114,10 +107,7 @@ async fn set_group_volume_response(
     let response = serde_json::json!({
         "data": { "success": true, "volume": volume },
         "headers": {
-            "timestamp": std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs()
+            "timestamp": helper::get_timestamp()
         }
     });
 
@@ -143,16 +133,13 @@ async fn list_devices_response() -> Result<String> {
         device_controller::list_output_devices().context("Failed to get output devices")?;
 
     let headers = ResponseHeaders {
-        timestamp: std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs(),
+        timestamp: helper::get_timestamp(),
         count: devices.len(),
     };
 
     let response = DeviceListResponse {
         data: devices,
-        headers: headers,
+        headers,
     };
 
     serde_json::to_string(&response).context("Failed to serialize response")
