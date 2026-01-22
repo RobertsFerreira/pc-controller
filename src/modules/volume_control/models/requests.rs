@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case")]
-pub enum ActionRequest {
+pub enum ActionSoundRequest {
     GetVolume,
     DevicesList,
     SessionList {
