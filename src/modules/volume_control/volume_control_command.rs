@@ -1,7 +1,7 @@
 use crate::modules::{
     core::helper,
     volume_control::{
-        models::responses::{
+        models::audio_responses::{
             DeviceListResponse, ResponseHeaders, SessionListResponse, VolumeResponse,
             VolumeResponseHeaders,
         },

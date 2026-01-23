@@ -2,8 +2,8 @@ use axum::extract::ws::Message;
 
 use crate::modules::core::helper::{create_error_response, create_error_response_with_details};
 use crate::modules::volume_control::helper::error_response_from_anyhow;
-use crate::modules::volume_control::models::requests::ActionSoundRequest;
-use crate::modules::volume_control::models::responses::error_codes;
+use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
+use crate::modules::volume_control::models::audio_responses::error_codes;
 use crate::modules::volume_control::volume_control_command;
 
 pub async fn handle_action_sound_request(action: ActionSoundRequest) -> Message {

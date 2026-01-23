@@ -14,7 +14,7 @@ use windows::{
     },
 };
 
-use crate::modules::volume_control::models::responses::error_codes;
+use crate::modules::volume_control::models::audio_responses::error_codes;
 use crate::modules::volume_control::models::SessionError;
 
 /// Manager COM library
