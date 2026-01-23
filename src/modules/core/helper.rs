@@ -1,5 +1,8 @@
+use axum::extract::ws::Message;
 use serde::Serialize;
 use std::time::SystemTime;
+
+use crate::modules::core::ErrorResponse;
 
 pub fn get_timestamp() -> u64 {
     SystemTime::now()
@@ -39,4 +42,21 @@ pub fn create_counted_response<T: Serialize>(
     count: usize,
 ) -> Result<String, anyhow::Error> {
     create_response(data, Some(count))
+}
+
+pub fn create_error_response(code: u16, message: &str) -> Message {
+    create_error_response_with_details(code, message, None)
+}
+
+pub fn create_error_response_with_details(
+    code: u16,
+    message: &str,
+    details: Option<String>,
+) -> Message {
+    let error = ErrorResponse {
+        code,
+        message: message.to_string(),
+        details,
+    };
+    Message::text(serde_json::to_string(&error).unwrap())
 }

@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use axum::extract::ws::Message;
 use windows::{
     core::{Result, PWSTR},
     Win32::{
@@ -15,7 +14,8 @@ use windows::{
     },
 };
 
-use crate::modules::volume_control::models::responses::{error_codes, ErrorResponse};
+use crate::modules::volume_control::models::responses::error_codes;
+use crate::modules::volume_control::models::SessionError;
 
 /// Manager COM library
 pub fn initialize() -> Result<()> {
@@ -62,8 +62,6 @@ fn extract_simple_name(path: &str) -> String {
 }
 
 pub fn error_response_from_anyhow(error: &anyhow::Error) -> (u16, Option<String>) {
-    use crate::modules::volume_control::models::SessionError;
-
     if let Some(session_err) = error.downcast_ref::<SessionError>() {
         match session_err {
             SessionError::DeviceNotFound { .. } => (error_codes::NOT_FOUND, None),
@@ -74,21 +72,4 @@ pub fn error_response_from_anyhow(error: &anyhow::Error) -> (u16, Option<String>
     } else {
         (error_codes::INTERNAL_ERROR, Some(error.to_string()))
     }
-}
-
-pub fn create_error_response(code: u16, message: &str) -> Message {
-    create_error_response_with_details(code, message, None)
-}
-
-pub fn create_error_response_with_details(
-    code: u16,
-    message: &str,
-    details: Option<String>,
-) -> Message {
-    let error = ErrorResponse {
-        code,
-        message: message.to_string(),
-        details,
-    };
-    Message::text(serde_json::to_string(&error).unwrap())
 }
