@@ -1,4 +1,4 @@
-pub mod handlers;
+pub mod audio_handlers;
 mod helper;
 pub mod models;
 pub mod sound_device_service;
