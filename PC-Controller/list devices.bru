@@ -15,7 +15,10 @@ body:ws {
   type: json
   content: '''
     {
-    "action": "devices_list"
+      "module": "audio",
+      "request": {
+        "action": "devices_list"
+      }
     }
   '''
 }
