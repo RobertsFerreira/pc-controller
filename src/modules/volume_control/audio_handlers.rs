@@ -1,33 +1,21 @@
-use anyhow::{Context, Result};
 use axum::extract::ws::Message;
 
-use crate::modules::volume_control::helper::{
-    create_error_response, create_error_response_with_details, error_response_from_anyhow,
-};
+use crate::modules::core::helper::{create_error_response, create_error_response_with_details};
+use crate::modules::volume_control::helper::error_response_from_anyhow;
 use crate::modules::volume_control::models::requests::ActionSoundRequest;
 use crate::modules::volume_control::models::responses::error_codes;
 use crate::modules::volume_control::volume_control_command;
 
-pub async fn handle_message(msg: Message) -> Message {
-    let text = msg.to_text().unwrap_or("Error converting message to text");
-    println!("Received message: {}", text);
-
-    let action_request: Result<ActionSoundRequest> = serde_json::from_str(text)
-        .context("Failed to deserialize incoming message to ActionRequest");
-
-    match action_request {
-        Ok(ActionSoundRequest::GetVolume) => handle_get_volume().await,
-        Ok(ActionSoundRequest::DevicesList) => handle_list_devices().await,
-        Ok(ActionSoundRequest::SessionList { device_id }) => handle_list_sessions(device_id).await,
-        Ok(ActionSoundRequest::SetGroupVolume {
+pub async fn handle_action_sound_request(action: ActionSoundRequest) -> Message {
+    match action {
+        ActionSoundRequest::GetVolume => handle_get_volume().await,
+        ActionSoundRequest::DevicesList => handle_list_devices().await,
+        ActionSoundRequest::SessionList { device_id } => handle_list_sessions(device_id).await,
+        ActionSoundRequest::SetGroupVolume {
             device_id,
             group_id,
             volume,
-        }) => handle_set_group_volume(device_id, group_id, volume).await,
-        Err(e) => {
-            tracing::error!("Failed to deserialize action request: {:?}", e);
-            create_error_response(error_codes::BAD_REQUEST, &e.to_string())
-        }
+        } => handle_set_group_volume(device_id, group_id, volume).await,
     }
 }
 
