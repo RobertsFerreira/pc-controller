@@ -6,7 +6,7 @@ use crate::modules::core::helper::create_error_response;
 use crate::modules::core::models::messages::GlobalRequest;
 use crate::modules::core::models::responses::error_codes;
 use crate::modules::volume_control::audio_handlers;
-use crate::modules::volume_control::models::requests::ActionSoundRequest;
+use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
 
 pub async fn handle_global_message(msg: Message) -> Message {
     let text = msg.to_text().unwrap_or("Error converting message to text");
