@@ -1,7 +1,11 @@
 use axum::extract::ws::Message;
 
+use crate::modules::{
+    core::response_builder::{create_error_response, create_response},
+    volume_control::{errors::AudioError, services},
+};
+use anyhow::Context;
 use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
-use crate::modules::volume_control::volume_control_command;
 
 /// Handler principal para requisições de áudio
 ///
@@ -20,17 +24,56 @@ pub async fn handle_action_sound_request(action: ActionSoundRequest) -> Message 
 }
 
 async fn handle_get_volume() -> Message {
-    volume_control_command::get_volume_response().await
+    let volume = services::get_actual_volume().context("Failed to get volume");
+
+    match volume {
+        Ok(volume) => create_response(volume, None),
+        Err(error) => {
+            let (code, details) = AudioError::error_response_from_anyhow(&error);
+            create_error_response(code, &error.to_string(), details)
+        }
+    }
 }
 
 async fn handle_list_sessions(device_id: String) -> Message {
-    volume_control_command::list_sessions_response(device_id).await
+    let sessions = services::get_session_for_device(&device_id)
+        .context("Failed to get sessions for device");
+    match sessions {
+        Ok(sessions) => {
+            let size = sessions.len();
+            create_response(sessions, Some(size))
+        }
+        Err(error) => {
+            let (code, details) = AudioError::error_response_from_anyhow(&error);
+            create_error_response(code, &error.to_string(), details)
+        }
+    }
 }
 
 async fn handle_set_group_volume(device_id: String, group_id: String, volume: f32) -> Message {
-    volume_control_command::set_group_volume_response(device_id, group_id, volume).await
+    let sound = services::set_group_volume(&group_id, &device_id, volume)
+        .context("Failed to set group volume");
+
+    match sound {
+        Ok(_) => create_response("Group volume set successfully", None),
+        Err(error) => {
+            let (code, details) = AudioError::error_response_from_anyhow(&error);
+            create_error_response(code, &error.to_string(), details)
+        }
+    }
 }
 
 async fn handle_list_devices() -> Message {
-    volume_control_command::list_devices_response().await
+    let devices = services::list_output_devices().context("Failed to get output devices");
+
+    match devices {
+        Ok(devices) => {
+            let size = devices.len();
+            create_response(devices, Some(size))
+        }
+        Err(error) => {
+            let (code, details) = AudioError::error_response_from_anyhow(&error);
+            create_error_response(code, &error.to_string(), details)
+        }
+    }
 }

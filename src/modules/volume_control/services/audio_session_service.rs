@@ -15,10 +15,10 @@ use windows::{
 use crate::modules::{
     core::com::ComContext,
     volume_control::{
-        audio_type::AudioResult,
-        audio_utils::get_friendly_process_name,
         errors::AudioError,
         models::{DeviceSound, SessionGroup, SessionState},
+        types::audio_result::AudioResult,
+        utils::audio_process_utils::get_friendly_process_name,
     },
 };
 

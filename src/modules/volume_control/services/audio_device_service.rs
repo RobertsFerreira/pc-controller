@@ -1,5 +1,5 @@
 use crate::modules::volume_control::models::device_sound::DeviceSound;
-use crate::modules::{core::com::ComContext, volume_control::audio_type::AudioResult};
+use crate::modules::{core::com::ComContext, volume_control::types::audio_result::AudioResult};
 
 use windows::Win32::{
     Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
