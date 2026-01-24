@@ -13,7 +13,7 @@ use windows::{
 };
 
 use crate::modules::volume_control::{
-    helper::{get_friendly_process_name, initialize, uninitialize},
+    com_utils::{get_friendly_process_name, initialize, uninitialize},
     models::{DeviceSound, SessionError, SessionGroup, SessionResult, SessionState},
 };
 

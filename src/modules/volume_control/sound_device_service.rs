@@ -1,4 +1,4 @@
-use crate::modules::volume_control::helper::{initialize, uninitialize};
+use crate::modules::volume_control::com_utils::{initialize, uninitialize};
 use crate::modules::volume_control::models::device_sound::DeviceSound;
 
 use windows::{

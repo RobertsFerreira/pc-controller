@@ -1,5 +1,5 @@
 pub mod audio_handlers;
-mod helper;
+mod com_utils;
 pub mod models;
 pub mod sound_device_service;
 mod sound_session_service;

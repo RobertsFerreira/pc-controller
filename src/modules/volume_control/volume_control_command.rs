@@ -1,5 +1,5 @@
 use crate::modules::{
-    core::helper,
+    core::response_builder,
     volume_control::{
         models::audio_responses::{
             DeviceListResponse, ResponseHeaders, SessionListResponse, VolumeResponse,
@@ -14,7 +14,7 @@ pub async fn get_volume_response() -> Result<String> {
     let volume = sound_device_service::get_actual_volume().context("Failed to get volume")?;
 
     let headers = VolumeResponseHeaders {
-        timestamp: helper::get_timestamp(),
+        timestamp: response_builder::get_timestamp(),
     };
 
     let response = VolumeResponse {
@@ -30,7 +30,7 @@ pub async fn list_sessions_response(device_id: String) -> Result<String> {
         .context("Failed to get sessions for device")?;
 
     let headers = ResponseHeaders {
-        timestamp: helper::get_timestamp(),
+        timestamp: response_builder::get_timestamp(),
         count: sessions.len(),
     };
 
@@ -53,7 +53,7 @@ pub async fn set_group_volume_response(
     let response = serde_json::json!({
         "data": { "success": true, "volume": volume },
         "headers": {
-            "timestamp": helper::get_timestamp()
+            "timestamp": response_builder::get_timestamp()
         }
     });
 
@@ -65,7 +65,7 @@ pub async fn list_devices_response() -> Result<String> {
         sound_device_service::list_output_devices().context("Failed to get output devices")?;
 
     let headers = ResponseHeaders {
-        timestamp: helper::get_timestamp(),
+        timestamp: response_builder::get_timestamp(),
         count: devices.len(),
     };
 
