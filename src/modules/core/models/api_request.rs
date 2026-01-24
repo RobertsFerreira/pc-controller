@@ -1,4 +1,4 @@
-use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
+use crate::modules::audio_control::models::audio_requests::ActionSoundRequest;
 use serde::{Deserialize, Serialize};
 
 /// Tipos de módulos suportados

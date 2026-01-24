@@ -13,13 +13,13 @@ use windows::{
 };
 
 use crate::modules::{
-    core::com::ComContext,
-    volume_control::{
+    audio_control::{
         errors::AudioError,
         models::{DeviceSound, SessionGroup, SessionState},
         types::audio_result::AudioResult,
         utils::audio_process_utils::get_friendly_process_name,
     },
+    core::com::ComContext,
 };
 
 /// Obtém um dispositivo pelo ID

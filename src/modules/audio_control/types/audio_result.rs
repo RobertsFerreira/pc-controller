@@ -1,3 +1,3 @@
-use crate::modules::volume_control::errors::AudioError;
+use crate::modules::audio_control::errors::AudioError;
 
 pub type AudioResult<T> = Result<T, AudioError>;

@@ -1,11 +1,10 @@
 use axum::extract::ws::Message;
 
-use crate::modules::{
-    core::response::{create_error_response, create_response},
-    volume_control::{errors::AudioError, services},
+use crate::modules::audio_control::{
+    errors::AudioError, models::audio_requests::ActionSoundRequest, services,
 };
+use crate::modules::core::response::{create_error_response, create_response};
 use anyhow::Context;
-use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
 
 /// Handler principal para requisições de áudio
 ///
@@ -36,8 +35,8 @@ async fn handle_get_volume() -> Message {
 }
 
 async fn handle_list_sessions(device_id: String) -> Message {
-    let sessions = services::get_session_for_device(&device_id)
-        .context("Failed to get sessions for device");
+    let sessions =
+        services::get_session_for_device(&device_id).context("Failed to get sessions for device");
     match sessions {
         Ok(sessions) => {
             let size = sessions.len();

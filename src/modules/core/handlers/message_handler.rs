@@ -2,11 +2,10 @@ use anyhow::{Context, Result};
 use axum::extract::ws::Message;
 use tracing::error;
 
+use crate::modules::audio_control::{audio_handlers, models::audio_requests::ActionSoundRequest};
 use crate::modules::core::{
     errors::error_codes, models::api_request::ApiRequest, response::create_error_response,
 };
-use crate::modules::volume_control::audio_handlers;
-use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
 
 pub async fn handle_global_message(msg: Message) -> Message {
     let text = msg.to_text().unwrap_or("Error converting message to text");
