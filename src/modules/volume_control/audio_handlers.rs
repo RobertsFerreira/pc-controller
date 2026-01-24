@@ -1,7 +1,7 @@
 use axum::extract::ws::Message;
 
 use crate::modules::{
-    core::response_builder::{create_error_response, create_response},
+    core::response::{create_error_response, create_response},
     volume_control::{errors::AudioError, services},
 };
 use anyhow::Context;

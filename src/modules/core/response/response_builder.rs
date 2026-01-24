@@ -1,19 +1,11 @@
 use axum::extract::ws::Message;
 use serde::Serialize;
-use std::time::SystemTime;
 
 use crate::modules::core::{
     errors::ErrorResponse,
     models::global_response::{ResponseHeaders, SuccessResponse},
+    utils::get_timestamp,
 };
-
-/// Retorna o timestamp atual em segundos Unix
-fn get_timestamp() -> u64 {
-    SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-}
 
 /// Cria uma resposta JSON padronizada
 ///
