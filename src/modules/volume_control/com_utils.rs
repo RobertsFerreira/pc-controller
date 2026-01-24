@@ -4,38 +4,15 @@ use windows::{
     core::{Result, PWSTR},
     Win32::{
         Foundation::CloseHandle,
-        System::{
-            Com::{CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED},
-            Threading::{
-                OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
-                PROCESS_QUERY_LIMITED_INFORMATION,
-            },
+        System::Threading::{
+            OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
+            PROCESS_QUERY_LIMITED_INFORMATION,
         },
     },
 };
 
 use crate::modules::volume_control::models::audio_responses::error_codes;
 use crate::modules::volume_control::models::SessionError;
-
-/// Inicializa a biblioteca COM do Windows
-///
-/// COM é necessário para acessar APIs de áudio do Windows.
-/// Deve ser chamado antes de qualquer operação de áudio.
-pub fn initialize() -> Result<()> {
-    unsafe {
-        // COINIT_MULTITHREADED permite uso multi-thread das APIs COM
-        CoInitializeEx(None, COINIT_MULTITHREADED).ok()?;
-    }
-    Ok(())
-}
-
-/// Finaliza a biblioteca COM do Windows
-///
-/// Deve ser chamado após completar todas as operações de áudio
-/// para limpar recursos alocados pelo COM.
-pub fn uninitialize() {
-    unsafe { CoUninitialize() };
-}
 
 /// Obtém o nome amigável de um processo a partir do PID
 ///

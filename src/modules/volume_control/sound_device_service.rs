@@ -1,4 +1,4 @@
-use crate::modules::volume_control::com_utils::{initialize, uninitialize};
+use crate::modules::core::com::ComContext;
 use crate::modules::volume_control::models::device_sound::DeviceSound;
 
 use windows::{
@@ -16,7 +16,7 @@ use windows::{
 /// dispositivos de saída (speakers, headphones, etc.) que estão
 /// atualmente ativos e conectados.
 pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
-    initialize()?;
+    ComContext::new()?;
     unsafe {
         // Cria enumerador de dispositivos de áudio
         let device_enumerator: IMMDeviceEnumerator =
@@ -50,7 +50,6 @@ pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
             println!("Device {} pushed", device_sound.name);
             devices.push(device_sound);
         }
-        uninitialize();
         Ok(devices)
     }
 }
@@ -59,7 +58,7 @@ pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
 ///
 /// Retorna o volume como um valor de 0.0 a 100.0 (percentual).
 pub fn get_actual_volume() -> Result<f32> {
-    initialize()?;
+    ComContext::new()?;
     let result = unsafe {
         // Cria enumerador de dispositivos
         let device_enumerator: IMMDeviceEnumerator =
@@ -84,6 +83,5 @@ pub fn get_actual_volume() -> Result<f32> {
         println!("Volume: {}", volume);
         volume
     };
-    uninitialize();
     Ok(result)
 }

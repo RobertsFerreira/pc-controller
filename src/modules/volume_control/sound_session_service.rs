@@ -12,9 +12,12 @@ use windows::{
     },
 };
 
-use crate::modules::volume_control::{
-    com_utils::{get_friendly_process_name, initialize, uninitialize},
-    models::{DeviceSound, SessionError, SessionGroup, SessionResult, SessionState},
+use crate::modules::{
+    core::com::ComContext,
+    volume_control::{
+        com_utils::get_friendly_process_name,
+        models::{DeviceSound, SessionError, SessionGroup, SessionResult, SessionState},
+    },
 };
 
 /// Obtém um dispositivo pelo ID
@@ -32,7 +35,6 @@ fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
                 let property_store = device.OpenPropertyStore(STGM_READ)?;
                 let name_value: PROPVARIANT = property_store.GetValue(&PKEY_Device_FriendlyName)?;
                 let device_name = name_value.to_string();
-                uninitialize();
                 Ok(DeviceSound {
                     id: id.unwrap_or_default(),
                     name: device_name.clone(),
@@ -120,7 +122,7 @@ fn create_session_group_from_guid(
 /// Sessões são agrupadas pelo GUID de agrupamento. Sessões com o mesmo GUID
 /// pertencem ao mesmo aplicativo e compartilham configurações de volume.
 pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup>> {
-    initialize()?;
+    ComContext::new()?;
     let device = get_device_by_id(device_id);
     match device {
         Ok(device) => unsafe {
@@ -151,13 +153,9 @@ pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup
                 }
             }
 
-            uninitialize();
             Ok(session_groups)
         },
-        Err(e) => {
-            uninitialize();
-            Err(e)
-        }
+        Err(e) => Err(e),
     }
 }
 
@@ -165,7 +163,7 @@ pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup
 ///
 /// Busca sessões pelo group_id e define o mesmo volume para todas.
 pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> SessionResult<()> {
-    initialize()?;
+    ComContext::new()?;
     let device = get_device_by_id(device_id);
     match device {
         Ok(device) => unsafe {
@@ -197,16 +195,11 @@ pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> Session
             }
 
             if found_sessions == 0 {
-                uninitialize();
                 return Err(SessionError::NoSessionsFound);
             }
 
-            uninitialize();
             Ok(())
         },
-        Err(e) => {
-            uninitialize();
-            Err(e)
-        }
+        Err(e) => Err(e),
     }
 }
