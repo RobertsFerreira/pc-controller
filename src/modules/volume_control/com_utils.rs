@@ -17,26 +17,39 @@ use windows::{
 use crate::modules::volume_control::models::audio_responses::error_codes;
 use crate::modules::volume_control::models::SessionError;
 
-/// Manager COM library
+/// Inicializa a biblioteca COM do Windows
+///
+/// COM é necessário para acessar APIs de áudio do Windows.
+/// Deve ser chamado antes de qualquer operação de áudio.
 pub fn initialize() -> Result<()> {
     unsafe {
+        // COINIT_MULTITHREADED permite uso multi-thread das APIs COM
         CoInitializeEx(None, COINIT_MULTITHREADED).ok()?;
     }
     Ok(())
 }
 
+/// Finaliza a biblioteca COM do Windows
+///
+/// Deve ser chamado após completar todas as operações de áudio
+/// para limpar recursos alocados pelo COM.
 pub fn uninitialize() {
     unsafe { CoUninitialize() };
 }
 
-// Map process ID to friendly name
+/// Obtém o nome amigável de um processo a partir do PID
+///
+/// Abre o processo, obtém o caminho completo do executável,
+/// e extrai apenas o nome do arquivo sem extensão.
 pub fn get_friendly_process_name(pid: u32) -> Result<String> {
     unsafe {
+        // Abre o processo com permissões para ler informações
         let process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid)?;
 
         let mut buffer = [0u16; 1024];
         let mut size = buffer.len() as u32;
 
+        // Obtém o caminho completo do executável do processo
         QueryFullProcessImageNameW(
             process_handle,
             PROCESS_NAME_WIN32,
@@ -44,6 +57,7 @@ pub fn get_friendly_process_name(pid: u32) -> Result<String> {
             &mut size,
         )?;
 
+        // Converte de UTF-16 para String (perda segura de dados inválidos)
         let path = String::from_utf16_lossy(&buffer[..size as usize]);
         let _ = CloseHandle(process_handle);
 
@@ -51,6 +65,7 @@ pub fn get_friendly_process_name(pid: u32) -> Result<String> {
     }
 }
 
+/// Extrai apenas o nome do arquivo de um caminho completo
 fn extract_simple_name(path: &str) -> String {
     let path_obj = Path::new(path);
     path_obj
@@ -61,6 +76,7 @@ fn extract_simple_name(path: &str) -> String {
         .to_string()
 }
 
+/// Converte erros anyhow para códigos de erro HTTP
 pub fn error_response_from_anyhow(error: &anyhow::Error) -> (u16, Option<String>) {
     if let Some(session_err) = error.downcast_ref::<SessionError>() {
         match session_err {

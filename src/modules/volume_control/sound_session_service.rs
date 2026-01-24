@@ -17,11 +17,13 @@ use crate::modules::volume_control::{
     models::{DeviceSound, SessionError, SessionGroup, SessionResult, SessionState},
 };
 
+/// Obtém um dispositivo pelo ID
 fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
     unsafe {
         let device_enumerator: IMMDeviceEnumerator =
             CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
 
+        // Converte ID de string para WideString (UTF-16)
         let wide_id: Vec<u16> = device_id.encode_utf16().chain(std::iter::once(0)).collect();
         let device = device_enumerator.GetDevice(PCWSTR(wide_id.as_ptr()));
         match device {
@@ -44,6 +46,10 @@ fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
     }
 }
 
+/// Cria um SessionGroup a partir de múltiplas sessões com o mesmo GUID
+///
+/// Sessões de áudio podem ser agrupadas (ex: Edge com múltiplas abas).
+/// Agrupa por GUID e calcula volume médio e estado agregado.
 fn create_session_group_from_guid(
     guid: GUID,
     sessions: Vec<IAudioSessionControl2>,
@@ -51,6 +57,7 @@ fn create_session_group_from_guid(
     unsafe {
         let first = &sessions[0];
 
+        // Obtém o PID e o nome amigável do processo
         let pid = first.GetProcessId().ok()?;
         let display_name = match get_friendly_process_name(pid) {
             Ok(name) => name,
@@ -62,6 +69,7 @@ fn create_session_group_from_guid(
         let mut is_muted = false;
         let mut has_active = false;
 
+        // Itera sobre todas as sessões do grupo
         for session in &sessions {
             let simple_volume: ISimpleAudioVolume = session.cast().ok()?;
             let volume = simple_volume.GetMasterVolume().ok()?;
@@ -75,11 +83,14 @@ fn create_session_group_from_guid(
             is_muted = is_muted || muted.as_bool();
 
             let state = session.GetState().ok()?;
+
+            // state.0 == 0 significa que a sessão está ativa
             if state.0 == 0 {
                 has_active = true;
             }
         }
 
+        // Calcula volume médio e converte para percentual
         let avg_volume = if active_count > 0 {
             (total_volume / active_count as f32) * 100.0
         } else {
@@ -104,17 +115,23 @@ fn create_session_group_from_guid(
     }
 }
 
+/// Obtém todos os grupos de sessões de áudio para um dispositivo
+///
+/// Sessões são agrupadas pelo GUID de agrupamento. Sessões com o mesmo GUID
+/// pertencem ao mesmo aplicativo e compartilham configurações de volume.
 pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup>> {
     initialize()?;
     let device = get_device_by_id(device_id);
     match device {
         Ok(device) => unsafe {
+            // Ativa o gerenciador de sessões para o dispositivo
             let session_manager: IAudioSessionManager2 =
                 device.endpoint.Activate(CLSCTX_ALL, None)?;
 
             let session_enum = session_manager.GetSessionEnumerator()?;
             let count = session_enum.GetCount()?;
 
+            // Agrupa sessões por GUID de agrupamento
             let mut groups: HashMap<GUID, Vec<IAudioSessionControl2>> = HashMap::new();
 
             for i in 0..count {
@@ -126,6 +143,7 @@ pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup
                 groups.entry(guid).or_default().push(session2);
             }
 
+            // Converte grupos de sessões em SessionGroups
             let mut session_groups = Vec::new();
             for (guid, sessions) in groups {
                 if let Some(group) = create_session_group_from_guid(guid, sessions) {
@@ -143,6 +161,9 @@ pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup
     }
 }
 
+/// Define o volume para todas as sessões de um grupo
+///
+/// Busca sessões pelo group_id e define o mesmo volume para todas.
 pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> SessionResult<()> {
     initialize()?;
     let device = get_device_by_id(device_id);
@@ -155,6 +176,8 @@ pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> Session
             let count = session_enum.GetCount()?;
 
             let mut found_sessions = 0;
+
+            // Converte de percentual (0-100) para scalar (0.0-1.0)
             let volume_scalar = (volume / 100.0).clamp(0.0, 1.0);
 
             for i in 0..count {
@@ -166,6 +189,8 @@ pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> Session
                 let guid_str = format!("{:?}", guid);
                 if guid_str == group_id {
                     let simple_volume: ISimpleAudioVolume = session2.cast()?;
+
+                    // std::ptr::null() significa sem notificação de evento de mudança
                     simple_volume.SetMasterVolume(volume_scalar, std::ptr::null())?;
                     found_sessions += 1;
                 }

@@ -6,6 +6,9 @@ use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
 use crate::modules::volume_control::models::audio_responses::error_codes;
 use crate::modules::volume_control::volume_control_command;
 
+/// Handler principal para requisições de áudio
+///
+/// Roteia para o handler apropriado baseado na ação solicitada.
 pub async fn handle_action_sound_request(action: ActionSoundRequest) -> Message {
     match action {
         ActionSoundRequest::GetVolume => handle_get_volume().await,

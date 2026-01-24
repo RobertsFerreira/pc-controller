@@ -3,39 +3,41 @@ use crate::modules::volume_control::models::{
 };
 use serde::Serialize;
 
-//------------Volume current output sound---------------//
+/// Headers para resposta de volume
 #[derive(Debug, Serialize)]
 pub struct VolumeResponseHeaders {
     pub timestamp: u64,
 }
+
+/// Resposta contendo o volume atual
 #[derive(Debug, Serialize)]
 pub struct VolumeResponse {
     pub data: f32,
     pub headers: VolumeResponseHeaders,
 }
 
-//-----------Base Response----------------//
+/// Headers para respostas com múltiplos itens
 #[derive(Debug, Serialize)]
 pub struct ResponseHeaders {
     pub timestamp: u64,
     pub count: usize,
 }
 
-//---------------- Session List Response ----------------//
+/// Resposta contendo lista de sessões de áudio
 #[derive(Debug, Serialize)]
 pub struct SessionListResponse {
     pub data: Vec<SessionGroup>,
     pub headers: ResponseHeaders,
 }
 
-//---------------- Device List Response ----------------//
+/// Resposta contendo lista de dispositivos de áudio
 #[derive(Debug, Serialize)]
 pub struct DeviceListResponse {
     pub data: Vec<DeviceSound>,
     pub headers: ResponseHeaders,
 }
 
-//---------------- Error Response ----------------//
+/// Resposta de erro padrão
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
     pub code: u16,
@@ -44,6 +46,7 @@ pub struct ErrorResponse {
     pub details: Option<String>,
 }
 
+/// Códigos de erro HTTP padrão
 pub mod error_codes {
     pub const BAD_REQUEST: u16 = 400;
     pub const NOT_FOUND: u16 = 404;

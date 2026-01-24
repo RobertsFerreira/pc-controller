@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Tipos de ações para controle de áudio
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "action", rename_all = "snake_case")]
 pub enum ActionSoundRequest {
