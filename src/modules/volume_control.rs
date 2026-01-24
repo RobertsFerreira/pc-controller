@@ -1,5 +1,7 @@
 pub mod audio_handlers;
-mod com_utils;
+mod audio_type;
+mod audio_utils;
+mod errors;
 pub mod models;
 pub mod sound_device_service;
 mod sound_session_service;

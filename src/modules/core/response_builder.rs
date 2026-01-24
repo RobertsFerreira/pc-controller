@@ -23,10 +23,7 @@ fn get_timestamp() -> u64 {
 ///
 /// # Returns
 /// JSON string no formato `{ data, headers: { timestamp, count? } }`
-pub fn create_response<T: Serialize>(
-    data: T,
-    count: Option<usize>,
-) -> Result<Message, anyhow::Error> {
+pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Message {
     let response = SuccessResponse {
         data,
         headers: ResponseHeaders {
@@ -35,9 +32,17 @@ pub fn create_response<T: Serialize>(
         },
     };
 
-    serde_json::to_string(&response)
-        .map(Message::text)
-        .map_err(anyhow::Error::from)
+    match response.to_json() {
+        Ok(msg) => msg,
+        Err(e) => {
+            tracing::error!("Failed to serialize success response: {:?}", e);
+            create_error_response(
+                500,
+                "Failed to serialize success response",
+                Some(e.to_string()),
+            )
+        }
+    }
 }
 
 /// Cria uma mensagem de erro WebSocket com detalhes
@@ -53,10 +58,8 @@ pub fn create_error_response(code: u16, message: &str, details: Option<String>) 
         details,
     };
 
-    let error = serde_json::to_string(&error).map_err(anyhow::Error::from);
-
-    match error {
-        Ok(err_msg) => Message::text(err_msg),
+    match error.to_json() {
+        Ok(err_msg) => err_msg,
         Err(e) => {
             tracing::error!("Failed to serialize error response: {:?}", e);
             Message::text("Failed to serialize error response")

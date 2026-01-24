@@ -1,13 +1,10 @@
-use crate::modules::core::com::ComContext;
 use crate::modules::volume_control::models::device_sound::DeviceSound;
+use crate::modules::{core::com::ComContext, volume_control::audio_type::AudioResult};
 
-use windows::{
-    core::*,
-    Win32::{
-        Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
-        Media::Audio::{Endpoints::IAudioEndpointVolume, *},
-        System::Com::{CoCreateInstance, StructuredStorage::PROPVARIANT, CLSCTX_ALL, STGM_READ},
-    },
+use windows::Win32::{
+    Devices::FunctionDiscovery::PKEY_Device_FriendlyName,
+    Media::Audio::{Endpoints::IAudioEndpointVolume, *},
+    System::Com::{CoCreateInstance, StructuredStorage::PROPVARIANT, CLSCTX_ALL, STGM_READ},
 };
 
 /// Lista todos os dispositivos de saída de áudio ativos
@@ -15,7 +12,7 @@ use windows::{
 /// Usa a API de dispositivos de áudio do Windows para enumerar
 /// dispositivos de saída (speakers, headphones, etc.) que estão
 /// atualmente ativos e conectados.
-pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
+pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
     ComContext::new()?;
     unsafe {
         // Cria enumerador de dispositivos de áudio
@@ -57,7 +54,7 @@ pub fn list_output_devices() -> Result<Vec<DeviceSound>> {
 /// Obtém o volume atual do dispositivo de saída padrão
 ///
 /// Retorna o volume como um valor de 0.0 a 100.0 (percentual).
-pub fn get_actual_volume() -> Result<f32> {
+pub fn get_actual_volume() -> AudioResult<f32> {
     ComContext::new()?;
     let result = unsafe {
         // Cria enumerador de dispositivos

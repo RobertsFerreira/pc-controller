@@ -11,9 +11,6 @@ use windows::{
     },
 };
 
-use crate::modules::core::error::error_codes;
-use crate::modules::volume_control::models::SessionError;
-
 /// Obtém o nome amigável de um processo a partir do PID
 ///
 /// Abre o processo, obtém o caminho completo do executável,
@@ -51,18 +48,4 @@ fn extract_simple_name(path: &str) -> String {
         .unwrap_or("Unknown")
         .trim_end_matches(".exe")
         .to_string()
-}
-
-/// Converte erros anyhow para códigos de erro HTTP
-pub fn error_response_from_anyhow(error: &anyhow::Error) -> (u16, Option<String>) {
-    if let Some(session_err) = error.downcast_ref::<SessionError>() {
-        match session_err {
-            SessionError::DeviceNotFound { .. } => (error_codes::NOT_FOUND, None),
-            SessionError::InvalidDeviceId => (error_codes::BAD_REQUEST, None),
-            SessionError::NoSessionsFound => (error_codes::NOT_FOUND, None),
-            _ => (error_codes::INTERNAL_ERROR, Some(session_err.to_string())),
-        }
-    } else {
-        (error_codes::INTERNAL_ERROR, Some(error.to_string()))
-    }
 }

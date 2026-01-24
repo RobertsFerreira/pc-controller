@@ -15,13 +15,15 @@ use windows::{
 use crate::modules::{
     core::com::ComContext,
     volume_control::{
-        com_utils::get_friendly_process_name,
-        models::{DeviceSound, SessionError, SessionGroup, SessionResult, SessionState},
+        audio_type::AudioResult,
+        audio_utils::get_friendly_process_name,
+        errors::AudioError,
+        models::{DeviceSound, SessionGroup, SessionState},
     },
 };
 
 /// Obtém um dispositivo pelo ID
-fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
+fn get_device_by_id(device_id: &str) -> AudioResult<DeviceSound> {
     unsafe {
         let device_enumerator: IMMDeviceEnumerator =
             CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL)?;
@@ -41,7 +43,7 @@ fn get_device_by_id(device_id: &str) -> SessionResult<DeviceSound> {
                     endpoint: device.clone(),
                 })
             }
-            Err(_) => Err(SessionError::DeviceNotFound {
+            Err(_) => Err(AudioError::DeviceNotFound {
                 device_id: device_id.to_string(),
             }),
         }
@@ -121,7 +123,7 @@ fn create_session_group_from_guid(
 ///
 /// Sessões são agrupadas pelo GUID de agrupamento. Sessões com o mesmo GUID
 /// pertencem ao mesmo aplicativo e compartilham configurações de volume.
-pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup>> {
+pub fn get_session_for_device(device_id: &str) -> AudioResult<Vec<SessionGroup>> {
     ComContext::new()?;
     let device = get_device_by_id(device_id);
     match device {
@@ -162,7 +164,7 @@ pub fn get_session_for_device(device_id: &str) -> SessionResult<Vec<SessionGroup
 /// Define o volume para todas as sessões de um grupo
 ///
 /// Busca sessões pelo group_id e define o mesmo volume para todas.
-pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> SessionResult<()> {
+pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> AudioResult<()> {
     ComContext::new()?;
     let device = get_device_by_id(device_id);
     match device {
@@ -195,7 +197,7 @@ pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> Session
             }
 
             if found_sessions == 0 {
-                return Err(SessionError::NoSessionsFound);
+                return Err(AudioError::NoSessionsFound);
             }
 
             Ok(())
