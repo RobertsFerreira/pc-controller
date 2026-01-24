@@ -2,9 +2,9 @@ use anyhow::{Context, Result};
 use axum::extract::ws::Message;
 use tracing::error;
 
-use crate::modules::core::response_builder::create_error_response;
+use crate::modules::core::error::error_codes;
 use crate::modules::core::models::global_request::GlobalRequest;
-use crate::modules::core::models::responses::error_codes;
+use crate::modules::core::response_builder::create_error_response;
 use crate::modules::volume_control::audio_handlers;
 use crate::modules::volume_control::models::audio_requests::ActionSoundRequest;
 
@@ -18,12 +18,12 @@ pub async fn handle_global_message(msg: Message) -> Message {
     match global_request {
         Ok(global_request) => match global_request {
             GlobalRequest::Audio { request } => handle_audio_message(request).await,
-            _ => create_error_response(error_codes::INTERNAL_ERROR, "Module not implemented"),
+            _ => create_error_response(error_codes::INTERNAL_ERROR, "Module not implemented", None),
         },
         Err(e) => {
             println!("Failed to deserialize global request: {:?}", e);
             error!("Failed to deserialize global request: {:?}", e);
-            create_error_response(error_codes::BAD_REQUEST, &e.to_string())
+            create_error_response(error_codes::BAD_REQUEST, &e.to_string(), None)
         }
     }
 }

@@ -11,7 +11,7 @@ use windows::{
     },
 };
 
-use crate::modules::volume_control::models::audio_responses::error_codes;
+use crate::modules::core::error::error_codes;
 use crate::modules::volume_control::models::SessionError;
 
 /// Obtém o nome amigável de um processo a partir do PID

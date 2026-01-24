@@ -1,78 +1,39 @@
 use crate::modules::{
-    core::response_builder,
-    volume_control::{
-        models::audio_responses::{
-            DeviceListResponse, ResponseHeaders, SessionListResponse, VolumeResponse,
-            VolumeResponseHeaders,
-        },
-        sound_device_service, sound_session_service,
-    },
+    core::response_builder::create_response,
+    volume_control::{sound_device_service, sound_session_service},
 };
 use anyhow::{Context, Result};
+use axum::extract::ws::Message;
 
-pub async fn get_volume_response() -> Result<String> {
+pub async fn get_volume_response() -> Result<Message> {
     let volume = sound_device_service::get_actual_volume().context("Failed to get volume")?;
 
-    let headers = VolumeResponseHeaders {
-        timestamp: response_builder::get_timestamp(),
-    };
-
-    let response = VolumeResponse {
-        data: volume,
-        headers,
-    };
-
-    serde_json::to_string(&response).context("Failed to serialize volume response")
+    create_response(volume, None)
 }
 
-pub async fn list_sessions_response(device_id: String) -> Result<String> {
+pub async fn list_sessions_response(device_id: String) -> Result<Message> {
     let sessions = sound_session_service::get_session_for_device(&device_id)
         .context("Failed to get sessions for device")?;
+    let size = sessions.len();
 
-    let headers = ResponseHeaders {
-        timestamp: response_builder::get_timestamp(),
-        count: sessions.len(),
-    };
-
-    let response = SessionListResponse {
-        data: sessions,
-        headers,
-    };
-
-    serde_json::to_string(&response).context("Failed to serialize response")
+    create_response(sessions, Some(size))
 }
 
 pub async fn set_group_volume_response(
     device_id: String,
     group_id: String,
     volume: f32,
-) -> Result<String> {
+) -> Result<Message> {
     sound_session_service::set_group_volume(&group_id, &device_id, volume)
         .context("Failed to set group volume")?;
 
-    let response = serde_json::json!({
-        "data": { "success": true, "volume": volume },
-        "headers": {
-            "timestamp": response_builder::get_timestamp()
-        }
-    });
-
-    serde_json::to_string(&response).context("Failed to serialize response")
+    create_response("Volume set successfully", None)
 }
 
-pub async fn list_devices_response() -> Result<String> {
+pub async fn list_devices_response() -> Result<Message> {
     let devices =
         sound_device_service::list_output_devices().context("Failed to get output devices")?;
+    let size = devices.len();
 
-    let headers = ResponseHeaders {
-        timestamp: response_builder::get_timestamp(),
-        count: devices.len(),
-    };
-
-    let response = DeviceListResponse {
-        data: devices,
-        headers,
-    };
-
-    serde_json::to_string(&response).context("Failed to serialize response")
+    create_response(devices, Some(size))
 }

@@ -36,19 +36,3 @@ pub struct DeviceListResponse {
     pub data: Vec<DeviceSound>,
     pub headers: ResponseHeaders,
 }
-
-/// Resposta de erro padrão
-#[derive(Debug, Serialize)]
-pub struct ErrorResponse {
-    pub code: u16,
-    pub message: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub details: Option<String>,
-}
-
-/// Códigos de erro HTTP padrão
-pub mod error_codes {
-    pub const BAD_REQUEST: u16 = 400;
-    pub const NOT_FOUND: u16 = 404;
-    pub const INTERNAL_ERROR: u16 = 500;
-}
