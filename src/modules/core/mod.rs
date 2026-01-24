@@ -8,6 +8,6 @@ pub mod utils;
 
 pub use broadcasting::Broadcaster;
 pub use handlers::handle_global_message;
-pub use models::{GlobalRequest, ServerEvent};
+pub use models::{ApiRequest, ServerEvent};
 pub use response::{create_error_response, create_response};
 pub use utils::get_timestamp;

@@ -13,7 +13,7 @@ pub enum ModuleType {
 /// Request global que roteia para o módulo apropriado
 #[derive(Debug, Deserialize)]
 #[serde(tag = "module", rename_all = "snake_case")]
-pub enum GlobalRequest {
+pub enum ApiRequest {
     Audio { request: ActionSoundRequest },
     Display,
     Network,

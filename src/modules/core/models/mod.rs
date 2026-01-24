@@ -1,6 +1,6 @@
-pub mod global_request;
-pub mod global_response;
+pub mod api_request;
+pub mod api_response;
 pub mod server_events;
 
-pub use global_request::{GlobalRequest, ModuleType};
+pub use api_request::{ApiRequest, ModuleType};
 pub use server_events::ServerEvent;

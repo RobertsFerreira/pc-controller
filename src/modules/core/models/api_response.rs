@@ -9,12 +9,12 @@ pub struct ResponseHeaders {
 }
 
 #[derive(Serialize, Debug)]
-pub struct SuccessResponse<T> {
+pub struct ApiResponse<T> {
     pub data: T,
     pub headers: ResponseHeaders,
 }
 
-impl<T> SuccessResponse<T>
+impl<T> ApiResponse<T>
 where
     T: Serialize,
 {

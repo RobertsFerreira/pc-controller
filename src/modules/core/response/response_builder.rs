@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::modules::core::{
     errors::ErrorResponse,
-    models::global_response::{ResponseHeaders, SuccessResponse},
+    models::api_response::{ApiResponse, ResponseHeaders},
     utils::get_timestamp,
 };
 
@@ -16,7 +16,7 @@ use crate::modules::core::{
 /// # Returns
 /// JSON string no formato `{ data, headers: { timestamp, count? } }`
 pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Message {
-    let response = SuccessResponse {
+    let response = ApiResponse {
         data,
         headers: ResponseHeaders {
             timestamp: get_timestamp(),
