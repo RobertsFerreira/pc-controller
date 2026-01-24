@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use axum::extract::ws::Message;
 use tracing::error;
 
-use crate::modules::core::error::error_codes;
+use crate::modules::core::errors::error_codes;
 use crate::modules::core::models::global_request::GlobalRequest;
 use crate::modules::core::response_builder::create_error_response;
 use crate::modules::volume_control::audio_handlers;

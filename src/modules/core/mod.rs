@@ -1,6 +1,6 @@
 pub mod broadcast;
 pub mod com;
-pub mod error;
+pub mod errors;
 pub mod global_handler;
 pub mod models;
 pub mod response_builder;

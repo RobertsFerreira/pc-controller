@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::time::SystemTime;
 
 use crate::modules::core::{
-    error::ErrorResponse,
+    errors::ErrorResponse,
     models::global_response::{ResponseHeaders, SuccessResponse},
 };
 

@@ -1,7 +1,7 @@
 use std::string::FromUtf16Error;
 use thiserror::Error;
 
-use crate::modules::core::error::error_codes;
+use crate::modules::core::errors::error_codes;
 
 #[derive(Debug, Error)]
 pub enum AudioError {
