@@ -59,7 +59,8 @@ use crate::modules::volume_control::models::SessionError;
 - Custom errors with `thiserror::Error` derive macro
 - Serde derives: `#[derive(Debug, Serialize, Deserialize)]`
 - Enum variants with `#[serde(tag = "action", rename_all = "snake_case")]`
-- Use `#[serde(skip_serializing)]` for fields that shouldn't be serialized
+- Use `#[serde(skip)]` for fields that shouldn't be serialized or deserialized
+- Use `#[serde(skip_serializing_if = "path")]` for fields that should be conditionally skipped during serialization
 
 Example:
 
