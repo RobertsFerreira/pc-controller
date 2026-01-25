@@ -25,7 +25,7 @@ async fn main() {
     const PORT_SERVER: u16 = 3000;
 
     let mut registry = ModuleRegistry::new();
-    registry.register("audio", Box::new(AudioModule));
+    registry.register("audio", Arc::new(AudioModule));
 
     let app_state = AppState {
         broadcaster: Arc::new(Broadcaster::new(100)),

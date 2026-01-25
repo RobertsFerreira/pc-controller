@@ -3,9 +3,10 @@ use crate::modules::core::response::create_error_response;
 use crate::modules::core::traits::ModuleHandler;
 use axum::extract::ws::Message;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct ModuleRegistry {
-    handlers: HashMap<String, Box<dyn ModuleHandler>>,
+    handlers: HashMap<String, Arc<dyn ModuleHandler>>,
 }
 
 impl ModuleRegistry {
@@ -15,7 +16,7 @@ impl ModuleRegistry {
         }
     }
 
-    pub fn register(&mut self, module_name: &str, handler: Box<dyn ModuleHandler>) {
+    pub fn register(&mut self, module_name: &str, handler: Arc<dyn ModuleHandler>) {
         self.handlers.insert(module_name.to_lowercase(), handler);
     }
 
