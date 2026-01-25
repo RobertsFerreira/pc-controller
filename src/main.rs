@@ -40,7 +40,7 @@ async fn main() {
         .await
         .expect("Failed to bind TCP listener");
 
-    println!("Server running on http://0.0.0.0/{}", PORT_SERVER);
+    println!("Server running on http://0.0.0.0:{}", PORT_SERVER);
 
     axum::serve(listener, app)
         .await

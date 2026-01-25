@@ -24,16 +24,18 @@ pub fn get_friendly_process_name(pid: u32) -> Result<String> {
         let mut size = buffer.len() as u32;
 
         // Obtém o caminho completo do executável do processo
-        QueryFullProcessImageNameW(
+        let query_result = QueryFullProcessImageNameW(
             process_handle,
             PROCESS_NAME_WIN32,
             PWSTR(buffer.as_mut_ptr()),
             &mut size,
-        )?;
+        );
+
+        let _ = CloseHandle(process_handle);
+        query_result?;
 
         // Converte de UTF-16 para String (perda segura de dados inválidos)
         let path = String::from_utf16_lossy(&buffer[..size as usize]);
-        let _ = CloseHandle(process_handle);
 
         Ok(extract_simple_name(&path))
     }
@@ -42,10 +44,15 @@ pub fn get_friendly_process_name(pid: u32) -> Result<String> {
 /// Extrai apenas o nome do arquivo de um caminho completo
 fn extract_simple_name(path: &str) -> String {
     let path_obj = Path::new(path);
-    path_obj
+    let name_process = path_obj
         .file_name()
         .and_then(|f| f.to_str())
         .unwrap_or("Unknown")
-        .trim_end_matches(".exe")
-        .to_string()
+        .to_string();
+
+    if name_process.to_lowercase().ends_with(".exe") {
+        name_process[..name_process.len() - 4].to_string()
+    } else {
+        name_process.to_string()
+    }
 }

@@ -31,7 +31,7 @@ pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Message {
             create_error_response(
                 500,
                 "Failed to serialize success response",
-                Some(e.to_string()),
+                None, // Don't expose internal error details to client
             )
         }
     }

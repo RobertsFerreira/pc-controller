@@ -15,7 +15,7 @@ use windows::Win32::{
 /// dispositivos de saída (speakers, headphones, etc.) que estão
 /// atualmente ativos e conectados.
 pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
-    ComContext::new()?;
+    let _com_ctx = ComContext::new()?;
     unsafe {
         // Cria enumerador de dispositivos de áudio
         let device_enumerator: IMMDeviceEnumerator =
@@ -27,7 +27,7 @@ pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
         let device_count = device_collection.GetCount()?;
 
         if device_count == 0 {
-            print!("no devices found");
+            println!("no devices found");
             return Ok(Vec::new());
         }
 
@@ -57,7 +57,7 @@ pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
 ///
 /// Retorna o volume como um valor de 0.0 a 100.0 (percentual).
 pub fn get_actual_volume() -> AudioResult<f32> {
-    ComContext::new()?;
+    let _com_ctx = ComContext::new()?;
     let result = unsafe {
         // Cria enumerador de dispositivos
         let device_enumerator: IMMDeviceEnumerator =

@@ -10,8 +10,7 @@ pub enum ModuleType {
     Network,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(tag = "module", rename_all = "snake_case")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleRequest {
     pub module: ModuleType,
     pub payload: Option<serde_json::Value>,

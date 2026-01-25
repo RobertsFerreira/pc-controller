@@ -16,10 +16,10 @@ impl Broadcaster {
     /// # Arguments
     /// * `capacity` - Número máximo de eventos em buffer antes de descartar
     pub fn new(capacity: usize) -> Self {
+        debug_assert!(capacity > 0, "Broadcaster capacity must be greater than 0");
         let (tx, _) = broadcast::channel(capacity);
         Self { tx }
     }
-
     /// Inscreve um novo cliente para receber eventos
     ///
     /// Retorna um receiver que pode ser usado para receber eventos.
