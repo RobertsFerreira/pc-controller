@@ -10,27 +10,33 @@ use axum::{
 use std::sync::Arc;
 
 pub mod modules;
-use crate::modules::core::handle_global_message;
+use crate::modules::audio_control::AudioModule;
 use crate::modules::core::Broadcaster;
+use crate::modules::core::{handle_message, ModuleRegistry};
 
 #[derive(Clone)]
 struct AppState {
     broadcaster: Arc<Broadcaster>,
+    registry: Arc<ModuleRegistry>,
 }
 
 #[tokio::main]
 async fn main() {
     const PORT_SERVER: u16 = 3000;
 
+    let mut registry = ModuleRegistry::new();
+    registry.register("audio", Box::new(AudioModule));
+
     let app_state = AppState {
         broadcaster: Arc::new(Broadcaster::new(100)),
+        registry: Arc::new(registry),
     };
 
     let app = Router::new()
         .route("/ws", get(ws_handler))
         .with_state(app_state);
 
-    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{PORT_SERVER}"))
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", PORT_SERVER))
         .await
         .expect("Failed to bind TCP listener");
 
@@ -42,10 +48,14 @@ async fn main() {
 }
 
 async fn ws_handler(ws: WebSocketUpgrade, State(state): State<AppState>) -> impl IntoResponse {
-    ws.on_upgrade(move |socket| handle_socket(socket, state.broadcaster))
+    ws.on_upgrade(move |socket| handle_socket(socket, state.broadcaster, state.registry))
 }
 
-async fn handle_socket(mut socket: WebSocket, broadcaster: Arc<Broadcaster>) {
+async fn handle_socket(
+    mut socket: WebSocket,
+    broadcaster: Arc<Broadcaster>,
+    registry: Arc<ModuleRegistry>,
+) {
     let mut event_rx = broadcaster.subscribe();
 
     loop {
@@ -53,7 +63,7 @@ async fn handle_socket(mut socket: WebSocket, broadcaster: Arc<Broadcaster>) {
             msg_result = socket.recv() => {
                 match msg_result {
                     Some(Ok(msg)) => {
-                        let response = handle_global_message(msg).await;
+                        let response = handle_message(msg, Arc::clone(&registry)).await;
                         if socket.send(response).await.is_err() {
                             println!("Client disconnected");
                             return;
