@@ -1,32 +1,44 @@
 use anyhow::{Context, Result};
 use axum::extract::ws::Message;
+use std::sync::Arc;
 use tracing::error;
 
-use crate::modules::audio_control::{audio_handlers, models::audio_requests::ActionSoundRequest};
 use crate::modules::core::{
-    errors::error_codes, models::api_request::ApiRequest, response::create_error_response,
+    errors::error_codes, models::module_request::ModuleRequest, registry::ModuleRegistry,
+    response::create_error_response,
 };
 
-pub async fn handle_global_message(msg: Message) -> Message {
-    let text = msg.to_text().unwrap_or("Error converting message to text");
-    println!("Received message: {}", text);
+pub async fn handle_message(msg: Message, registry: Arc<ModuleRegistry>) -> Message {
+    let text = match msg.to_text() {
+        Ok(text) => text,
+        Err(e) => {
+            let err_msg = format!("Failed to convert message to text: {:?}", e);
+            error!("{}", err_msg);
+            return create_error_response(error_codes::BAD_REQUEST, &err_msg, None);
+        }
+    };
 
-    let global_request: Result<ApiRequest> =
+    let request: Result<ModuleRequest> =
         serde_json::from_str(text).context("Failed to deserialize global request");
 
-    match global_request {
-        Ok(global_request) => match global_request {
-            ApiRequest::Audio { request } => handle_audio_message(request).await,
-            _ => create_error_response(error_codes::INTERNAL_ERROR, "Module not implemented", None),
-        },
+    match request {
+        Ok(request) => {
+            let payload = match request.payload {
+                Some(payload) => payload.to_string(),
+                None => {
+                    let err_msg = "Payload is missing in the request".to_string();
+                    error!("{}", err_msg);
+                    return create_error_response(error_codes::BAD_REQUEST, &err_msg, None);
+                }
+            };
+
+            let module = request.module.to_string();
+
+            registry.handle(&module, &payload).await
+        }
         Err(e) => {
-            println!("Failed to deserialize global request: {:?}", e);
             error!("Failed to deserialize global request: {:?}", e);
             create_error_response(error_codes::BAD_REQUEST, &e.to_string(), None)
         }
     }
-}
-
-async fn handle_audio_message(request: ActionSoundRequest) -> Message {
-    audio_handlers::handle_action_sound_request(request).await
 }
