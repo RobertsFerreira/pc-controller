@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:pc_remote_control/core/clients/ws_client_interface.dart';
-import 'package:pc_remote_control/core/settings/retry_config.dart';
+import 'package:pc_remote_control/core/settings/app_settings.dart';
 import 'package:web_socket/web_socket.dart';
 
 class WsClient implements WsClientInterface {
@@ -14,7 +14,7 @@ class WsClient implements WsClientInterface {
   late final StreamController<WsStatus> _statusController;
   late final StreamController _messages;
 
-  final _retryConfig = RetryConfig();
+  final AppSettings _appSettings;
   int _attempt = 0;
   Timer? _retryTimer;
 
@@ -23,7 +23,10 @@ class WsClient implements WsClientInterface {
 
   final String url;
 
-  WsClient({required this.url, this.timeout = const Duration(seconds: 10)}) {
+  WsClient({required AppSettings appSettings})
+    : _appSettings = appSettings,
+      url = appSettings.wsUrl,
+      timeout = appSettings.wsTimeout {
     _statusController = StreamController<WsStatus>.broadcast();
     _messages = StreamController.broadcast();
     _setStatus(WsStatus.disconnected);
@@ -130,7 +133,7 @@ class WsClient implements WsClientInterface {
   void handleRetry() {
     if (_manuallyDisconnected) return;
 
-    final nextDelay = _retryConfig.nextDelay(_attempt);
+    final nextDelay = _appSettings.retryConfig.nextDelay(_attempt);
     if (nextDelay == null) {
       debugPrint('Max retry attempts reached. Giving up.');
       _setStatus(WsStatus.error);
