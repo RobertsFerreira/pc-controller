@@ -40,11 +40,7 @@ class WsClient implements WsClientInterface {
     _retryTimer?.cancel();
     _retryTimer = null;
 
-    await _channelSubscription?.cancel();
-    _channelSubscription = null;
-
-    await _channel?.close();
-    _channel = null;
+    await _closeChannel();
 
     _setStatus(WsStatus.closed);
   }
@@ -61,7 +57,7 @@ class WsClient implements WsClientInterface {
       final url = Uri.parse(this.url);
       _setStatus(WsStatus.connecting);
 
-      await _channelSubscription?.cancel();
+      await _closeChannel();
 
       _channel = await WebSocket.connect(url).timeout(timeout);
       _channelSubscription = _channel!.events.listen(
@@ -118,7 +114,7 @@ class WsClient implements WsClientInterface {
   @override
   WsStatus get status => _status;
 
-  void _setStatus(WsStatus newStatus) async {
+  void _setStatus(WsStatus newStatus) {
     if (_status == newStatus) return;
 
     _status = newStatus;
@@ -132,6 +128,7 @@ class WsClient implements WsClientInterface {
   @override
   void handleRetry() {
     if (_manuallyDisconnected) return;
+    if (_retryTimer != null && _retryTimer!.isActive) return;
 
     final nextDelay = _appSettings.retryConfig.nextDelay(_attempt);
     if (nextDelay == null) {
@@ -148,6 +145,14 @@ class WsClient implements WsClientInterface {
       debugPrint('Attempting to reconnect...');
       connect();
     });
+  }
+
+  Future<void> _closeChannel() async {
+    await _channelSubscription?.cancel();
+    await _channel?.close();
+
+    _channelSubscription = null;
+    _channel = null;
   }
 
   Future<void> dispose() async {
