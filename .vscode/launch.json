@@ -10,13 +10,13 @@
             "request": "launch",
             "cargo": {
                 "args": [
-                    "run",
-                    "--bin=pc-controller",
-                    "--",
-                    "--watch"
+                    "build",
+                    "--bin=pc-controller"
                 ]
             },
-            "args": []
+            "args": [
+                "--watch"
+            ]
         },
         {
             "name": "Debug unit tests in executable 'pc-controller'",
