@@ -3,6 +3,7 @@ use axum::extract::ws::Message;
 use crate::modules::audio_control::{
     errors::AudioError, models::audio_requests::ActionSoundRequest, services,
 };
+use crate::modules::core::errors::error_codes;
 use crate::modules::core::response::{create_error_response, create_response};
 use anyhow::Context;
 
@@ -50,6 +51,14 @@ async fn handle_list_sessions(device_id: String) -> Message {
 }
 
 async fn handle_set_group_volume(device_id: String, group_id: String, volume: f32) -> Message {
+    if !(0.0..=1.0).contains(&volume) {
+        return create_error_response(
+            error_codes::BAD_REQUEST,
+            "Volume must be between 0.0 and 1.0",
+            None,
+        );
+    }
+
     let sound = services::set_group_volume(&group_id, &device_id, volume)
         .context("Failed to set group volume");
 

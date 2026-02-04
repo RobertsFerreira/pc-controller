@@ -12,6 +12,7 @@ pub enum ActionSoundRequest {
     SetGroupVolume {
         device_id: String,
         group_id: String,
+        /// Volume level, expected range: 0.0 to 1.0
         volume: f32,
     },
 }

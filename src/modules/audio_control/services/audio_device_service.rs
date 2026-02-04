@@ -1,3 +1,4 @@
+use crate::modules::audio_control::errors::AudioError;
 use crate::modules::audio_control::{
     models::device_sound::DeviceSound, types::audio_result::AudioResult,
 };
@@ -34,7 +35,10 @@ pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
         let mut devices: Vec<DeviceSound> = Vec::new();
         for index in 0..device_count {
             let device: IMMDevice = device_collection.Item(index)?;
-            let id = device.GetId()?.to_string();
+            let id = device
+                .GetId()?
+                .to_string()
+                .map_err(AudioError::Utf16Error)?;
 
             // Abre o repositório de propriedades para obter o nome do dispositivo
             let property_store = device.OpenPropertyStore(STGM_READ)?;
@@ -42,7 +46,7 @@ pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
             let device_name = name_value.to_string();
 
             let device_sound = DeviceSound {
-                id: id.unwrap_or_default(),
+                id: id,
                 name: device_name.clone(),
                 endpoint: device.clone(),
             };
