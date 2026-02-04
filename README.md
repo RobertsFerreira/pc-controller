@@ -19,7 +19,8 @@ API WebSocket para controle de dispositivos de áudio e sessões de áudio no Wi
 ## Instalação
 
 ```bash
-git clone <repositorio>
+git clone https://github.com/RobertsFerreira/pc-controller
+
 cd pc-controller
 cargo build --release
 ```
@@ -107,7 +108,3 @@ cargo doc --open               # Gera e abre documentação
 - **windows** - Bindings para Windows API
 - **anyhow** - Error handling
 - **thiserror** - Custom error types
-
-## Licença
-
-[Adicionar licença se aplicável]
