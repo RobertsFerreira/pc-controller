@@ -64,7 +64,7 @@ Connect to: `ws://localhost:3000/ws`
     "count": 1
   }
 }
-```
+t_group_volume`. Use the session `id` from the `session_list` response.```
 
 ### Get Volume
 
@@ -236,7 +236,7 @@ echo '{"action":"set_group_volume","device_id":"{DEVICE_ID}","group_id":"{GROUP_
 ## Notes
 
 - **device_id**: Required for `session_list` and `set_group_volume`. Get this from the `devices_list` response.
-- **group_id**: Required for `set_group_volume`. Get this from the `session_list` response.
+- **group_id**: Required for `set_group_volume`. Use the session `id` from the `session_list` response.
 - **volume_level**: Returned as a percentage (0-100) for easy frontend integration.
 - **WebSocket**: The connection is persistent; you can send multiple requests without reconnecting.
 
