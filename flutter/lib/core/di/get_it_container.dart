@@ -10,11 +10,11 @@ class GetItContainer implements DIContainer {
 
   @override
   void registerSingleton<T extends Object>(T instance) {
-    _getIt.registerSingleton(instance);
+    _getIt.registerSingleton<T>(instance);
   }
 
   @override
   void registerLazySingleton<T extends Object>(T Function() factory) {
-    _getIt.registerLazySingleton(factory);
+    _getIt.registerLazySingleton<T>(factory);
   }
 }
