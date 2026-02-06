@@ -1,9 +1,14 @@
+use std::marker::PhantomData;
+
 use windows::{
     core::Result,
     Win32::System::Com::{CoInitializeEx, CoUninitialize, COINIT_MULTITHREADED},
 };
 
-pub struct ComContext;
+pub struct ComContext {
+    // Prevent Send + Sync since COM init is per-thread
+    _marker: PhantomData<*const ()>,
+}
 impl ComContext {
     /// Inicializa a biblioteca COM do Windows
     ///
@@ -14,7 +19,9 @@ impl ComContext {
             // COINIT_MULTITHREADED permite uso multi-thread das APIs COM
             CoInitializeEx(None, COINIT_MULTITHREADED).ok()?;
         }
-        Ok(ComContext)
+        Ok(ComContext {
+            _marker: PhantomData,
+        })
     }
 }
 
