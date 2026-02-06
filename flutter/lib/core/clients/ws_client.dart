@@ -47,7 +47,9 @@ class WsClient implements WsClientInterface {
 
   @override
   Future<void> connect() async {
-    if (_status == WsStatus.connected || _status == WsStatus.connecting) {
+    if (_status == WsStatus.connected ||
+        _status == WsStatus.connecting ||
+        _status == WsStatus.reconnecting) {
       return;
     }
 
@@ -73,10 +75,10 @@ class WsClient implements WsClientInterface {
           debugPrint('WebSocket disconnected');
           if (_manuallyDisconnected) return;
           _setStatus(WsStatus.disconnected);
-          handleRetry();
         },
         onError: (error) {
           debugPrint('WebSocket error: $error');
+          _setStatus(WsStatus.error);
           handleRetry();
         },
         cancelOnError: false,
@@ -157,7 +159,11 @@ class WsClient implements WsClientInterface {
 
   Future<void> dispose() async {
     await disconnect();
-    await _statusController.close();
-    await _messages.close();
+    if (!_statusController.isClosed) {
+      await _statusController.close();
+    }
+    if (!_messages.isClosed) {
+      await _messages.close();
+    }
   }
 }
