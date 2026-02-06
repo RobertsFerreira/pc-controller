@@ -14,6 +14,8 @@ thiserror = "2.0"
 tokio = { version = "1", features = ["full"] }
 tokio-tungstenite = "0.26.2"
 tracing = "0.1.41"
+
+[target.'cfg(windows)'.dependencies]
 windows = { version = "0.60", features = [
     "Win32_Foundation",
     "Win32_Media_Audio",

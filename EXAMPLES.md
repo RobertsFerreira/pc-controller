@@ -64,9 +64,11 @@ Connect to: `ws://localhost:3000/ws`
     "count": 1
   }
 }
-t_group_volume`. Use the session `id` from the `session_list` response.```
+```
 
 ### Get Volume
+
+Returns the system master volume level.
 
 **Request:**
 
@@ -128,7 +130,7 @@ All errors follow this format:
 {
   "code": 404,
   "message": "Device not found: {device_id}",
-  "details": "Additional error context if needed"
+  "details": "Additional error context if needed (optional)"
 }
 ```
 
