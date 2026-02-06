@@ -1,3 +1,4 @@
+use crate::modules::audio_control::types::GroupId;
 use serde::{Deserialize, Serialize};
 
 /// Tipos de ações para controle de áudio
@@ -11,7 +12,7 @@ pub enum ActionSoundRequest {
     },
     SetGroupVolume {
         device_id: String,
-        group_id: String,
+        group_id: GroupId,
         /// Volume level, expected range: 0.0 to 1.0
         volume: f32,
     },

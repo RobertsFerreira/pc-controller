@@ -16,7 +16,7 @@ use crate::modules::{
     audio_control::{
         errors::AudioError,
         models::{DeviceSound, SessionGroup, SessionState},
-        types::audio_result::AudioResult,
+        types::{audio_result::AudioResult, GroupId},
         utils::audio_process_utils::get_friendly_process_name,
     },
     core::com::ComContext,
@@ -111,7 +111,7 @@ fn create_session_group_from_guid(
             SessionState::Inactive
         };
 
-        let id = format!("{:?}", guid);
+        let id = GroupId::from(&guid);
 
         Some(SessionGroup {
             id,
@@ -168,7 +168,7 @@ pub fn get_session_for_device(device_id: &str) -> AudioResult<Vec<SessionGroup>>
 /// Define o volume para todas as sessões de um grupo
 ///
 /// Busca sessões pelo group_id e define o mesmo volume para todas.
-pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> AudioResult<()> {
+pub fn set_group_volume(group_id: &GroupId, device_id: &str, volume: f32) -> AudioResult<()> {
     let _com_ctx = ComContext::new()?;
     let device = get_device_by_id(device_id);
     match device {
@@ -190,8 +190,8 @@ pub fn set_group_volume(group_id: &str, device_id: &str, volume: f32) -> AudioRe
 
                 let guid = session2.GetGroupingParam()?;
 
-                let guid_str = format!("{:?}", guid);
-                if guid_str == group_id {
+                let current_group_id = GroupId::from(&guid);
+                if current_group_id == *group_id {
                     let simple_volume: ISimpleAudioVolume = session2.cast()?;
 
                     // std::ptr::null() significa sem notificação de evento de mudança

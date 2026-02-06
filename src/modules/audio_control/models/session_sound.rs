@@ -1,9 +1,10 @@
+use crate::modules::audio_control::types::GroupId;
 use serde::Serialize;
 use windows::Win32::Media::Audio::AudioSessionState;
 
 #[derive(Debug, Serialize)]
 pub struct SessionGroup {
-    pub id: String,
+    pub id: GroupId,
     pub display_name: String,
     pub volume_level: f32,
     pub state: SessionState,
