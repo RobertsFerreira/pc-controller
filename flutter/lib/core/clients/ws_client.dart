@@ -47,9 +47,7 @@ class WsClient implements WsClientInterface {
 
   @override
   Future<void> connect() async {
-    if (_status == WsStatus.connected ||
-        _status == WsStatus.connecting ||
-        _status == WsStatus.reconnecting) {
+    if (_status == WsStatus.connected || _status == WsStatus.connecting) {
       return;
     }
 
