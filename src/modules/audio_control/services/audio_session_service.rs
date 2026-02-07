@@ -33,12 +33,15 @@ fn get_device_by_id(device_id: &str) -> AudioResult<DeviceSound> {
         let device = device_enumerator.GetDevice(PCWSTR(wide_id.as_ptr()));
         match device {
             Ok(device) => {
-                let id = device.GetId()?.to_string();
+                let id = device
+                    .GetId()?
+                    .to_string()
+                    .map_err(AudioError::Utf16Error)?;
                 let property_store = device.OpenPropertyStore(STGM_READ)?;
                 let name_value: PROPVARIANT = property_store.GetValue(&PKEY_Device_FriendlyName)?;
                 let device_name = name_value.to_string();
                 Ok(DeviceSound {
-                    id: id.unwrap_or_default(),
+                    id,
                     name: device_name.clone(),
                     endpoint: device.clone(),
                 })

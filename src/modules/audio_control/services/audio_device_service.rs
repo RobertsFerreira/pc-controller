@@ -34,19 +34,45 @@ pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
 
         let mut devices: Vec<DeviceSound> = Vec::new();
         for index in 0..device_count {
-            let device: IMMDevice = device_collection.Item(index)?;
-            let id = device
-                .GetId()?
-                .to_string()
-                .map_err(AudioError::Utf16Error)?;
+            let device = match device_collection.Item(index) {
+                Ok(device) => device,
+                Err(error) => {
+                    println!("Failed to get device at index {}: {:?}", index, error);
+                    continue;
+                }
+            };
 
-            // Abre o repositório de propriedades para obter o nome do dispositivo
-            let property_store = device.OpenPropertyStore(STGM_READ)?;
-            let name_value: PROPVARIANT = property_store.GetValue(&PKEY_Device_FriendlyName)?;
+            let id = match device.GetId()?.to_string().map_err(AudioError::Utf16Error) {
+                Ok(id) => id,
+                Err(error) => {
+                    println!("Invalid device ID at index {}: {:?}", index, error);
+                    continue;
+                }
+            };
+
+            let property_store = match device.OpenPropertyStore(STGM_READ) {
+                Ok(property_store) => property_store,
+                Err(error) => {
+                    println!(
+                        "Failed to open property store for device {}: {:?}",
+                        id, error
+                    );
+                    continue;
+                }
+            };
+
+            let name_value: PROPVARIANT = match property_store.GetValue(&PKEY_Device_FriendlyName) {
+                Ok(name_value) => name_value,
+                Err(error) => {
+                    println!("Failed to get friendly name for device {}: {:?}", id, error);
+                    continue;
+                }
+            };
+
             let device_name = name_value.to_string();
 
             let device_sound = DeviceSound {
-                id: id,
+                id,
                 name: device_name.clone(),
                 endpoint: device.clone(),
             };
