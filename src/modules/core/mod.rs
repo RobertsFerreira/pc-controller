@@ -13,5 +13,4 @@ pub use handlers::handle_message;
 pub use models::{ModuleType, ServerEvent};
 pub use registry::ModuleRegistry;
 pub use response::{create_error_response, create_response};
-pub use traits::ModuleHandler;
 pub use utils::get_timestamp;

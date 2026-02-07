@@ -78,10 +78,15 @@ async fn handle_socket(
             event_result = event_rx.recv() => {
                 match event_result {
                     Ok(event) => {
-                        if let Ok(event_json) = event.to_json() {
-                            if socket.send(Message::text(event_json)).await.is_err() {
-                                println!("Client disconnected");
-                                return;
+                        match event.to_json() {
+                            Ok(event_json) => {
+                                if socket.send(Message::text(event_json)).await.is_err() {
+                                    println!("Client disconnected");
+                                    return;
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to serialize event: {}", e);
                             }
                         }
                     }

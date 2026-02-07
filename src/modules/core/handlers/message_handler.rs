@@ -34,11 +34,18 @@ pub async fn handle_message(msg: Message, registry: Arc<ModuleRegistry>) -> Mess
 
             let module = request.module.to_string();
 
-            registry.handle(&module, &payload).await
+            match registry.handle(&module, &payload).await {
+                Ok(msg) => msg,
+                Err(error) => {
+                    let err_msg = format!("Failed to handle request for module '{}'", module);
+                    error!("{}: {:?}", err_msg, error);
+                    create_error_response(error_codes::INTERNAL_ERROR, &err_msg, None)
+                }
+            }
         }
         Err(e) => {
             error!("Failed to deserialize global request: {:?}", e);
-            create_error_response(error_codes::BAD_REQUEST, &e.to_string(), None)
+            create_error_response(error_codes::BAD_REQUEST, "Invalid request format", None)
         }
     }
 }

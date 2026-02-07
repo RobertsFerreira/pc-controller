@@ -1,4 +1,3 @@
-use crate::modules::audio_control::errors::AudioError;
 use crate::modules::audio_control::{
     models::device_sound::DeviceSound, types::audio_result::AudioResult,
 };
@@ -42,7 +41,15 @@ pub fn list_output_devices() -> AudioResult<Vec<DeviceSound>> {
                 }
             };
 
-            let id = match device.GetId()?.to_string().map_err(AudioError::Utf16Error) {
+            let id_pointer = match device.GetId() {
+                Ok(id_pointer) => id_pointer,
+                Err(error) => {
+                    println!("Failed to get device ID at index {}: {:?}", index, error);
+                    continue;
+                }
+            };
+
+            let id = match id_pointer.to_string() {
                 Ok(id) => id,
                 Err(error) => {
                     println!("Invalid device ID at index {}: {:?}", index, error);
