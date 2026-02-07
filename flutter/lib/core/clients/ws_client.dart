@@ -75,6 +75,7 @@ class WsClient implements WsClientInterface {
           debugPrint('WebSocket disconnected');
           if (_manuallyDisconnected) return;
           _setStatus(WsStatus.disconnected);
+          handleRetry();
         },
         onError: (error) {
           debugPrint('WebSocket error: $error');
