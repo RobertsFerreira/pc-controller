@@ -8,6 +8,12 @@ use windows::core::GUID;
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, Eq, PartialEq)]
 pub struct GroupId(String);
 
+impl GroupId {
+    pub fn new(id: String) -> Self {
+        Self(id)
+    }
+}
+
 impl Display for GroupId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
