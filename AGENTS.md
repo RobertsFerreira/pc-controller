@@ -34,7 +34,7 @@ cargo test -- --nocapture      # Show test output
 
 - Group imports: std → external crates → internal crate
 - Use `use crate::` prefix for internal imports
-- Module structure: each module directory contains `mod.rs` with submodule declarations
+- Module structure: each module directory contains `mod.rs` with submodule declarations (except top-level modules which use implicit module discovery)
 - Re-export commonly used types in `mod.rs` with `pub use`
 
 Example:
@@ -42,7 +42,7 @@ Example:
 ```rust
 use std::{collections::HashMap, path::Path};
 use windows::Win32::Media::Audio::*;
-use crate::modules::volume_control::models::SessionError;
+use crate::modules::audio_control::models::SessionError;
 ```
 
 ### Formatting
@@ -107,10 +107,10 @@ async fn get_volume() -> Result<f32> {
 ### Windows-Specific Patterns
 
 - Wrap Windows API calls in `unsafe` blocks
-- COM initialization: call `initialize()` at function start, `uninitialize()` before return
+- COM initialization: use `ComContext::new()` for RAII-style COM management (auto-cleanup on drop)
 - Use `?` operator for HRESULT to Result conversion via windows crate
 - Use `format!("{:?}", guid)` to convert GUIDs to string representation
-- Always handle COM cleanup in all error paths
+- ComContext automatically handles COM cleanup in all paths via Drop trait
 
 ### Async Functions
 
@@ -189,31 +189,80 @@ Standard error format:
 ```md
 src/
 ├── main.rs                    # Entry point with WebSocket server
-├── modules/
-│   ├── mod.rs
-│   ├── core/
-│   │   ├── mod.rs
-│   │   └── helper.rs          # Core utility functions
-│   └── volume_control/
-│       ├── mod.rs
-│       ├── handlers.rs        # WebSocket message handlers
-│       ├── helper.rs          # Volume control utilities
-│       ├── volume_control_command.rs # Command handlers
-│       ├── sound_device_service.rs    # Device-level audio control
-│       ├── sound_session_service.rs   # Session-level audio control
-│       └── models/
-│           ├── mod.rs
-│           ├── requests.rs    # Request types
-│           ├── responses.rs   # Response types
-│           ├── errors.rs      # Error types
-│           ├── session_sound.rs
-│           └── device_sound.rs
+├── lib.rs                     # Library exports
+└── modules/
+    ├── mod.rs                 # Module declarations
+    ├── app_router.rs          # WebSocket router and handlers
+    ├── audio_control/         # Audio control module
+    │   ├── mod.rs             # Audio control exports
+    │   ├── audio_handlers.rs  # WebSocket message handlers
+    │   ├── audio_module.rs    # Audio module implementation
+    │   ├── errors/            # Audio-specific errors
+    │   │   ├── mod.rs
+    │   │   └── audio_errors.rs
+    │   ├── models/            # Data models
+    │   │   ├── mod.rs
+    │   │   ├── audio_requests.rs
+    │   │   ├── device_sound.rs
+    │   │   └── session_sound.rs
+    │   ├── services/          # Business logic
+    │   │   ├── mod.rs
+    │   │   ├── audio_device_service.rs
+    │   │   └── audio_session_service.rs
+    │   ├── platform/          # Platform-specific implementations
+    │   │   ├── mod.rs
+    │   │   ├── audio_system_interface.rs
+    │   │   └── windows_audio_adapter.rs
+    │   ├── types/             # Type definitions
+    │   │   ├── mod.rs
+    │   │   ├── audio_result.rs
+    │   │   └── group_id.rs
+    │   ├── utils/             # Utility functions
+    │   │   ├── mod.rs
+    │   │   └── audio_process_utils.rs
+    │   └── tests/             # Audio module tests
+    │       ├── mod.rs
+    │       ├── audio_handlers_tests.rs
+    │       ├── audio_module_tests.rs
+    │       ├── test_server.rs
+    │       └── websocket_integration_tests.rs
+    └── core/                  # Core infrastructure
+        ├── mod.rs             # Core exports
+        ├── broadcasting/      # Event broadcasting
+        │   ├── mod.rs
+        │   └── event_broadcaster.rs
+        ├── com/               # COM utilities
+        │   ├── mod.rs
+        │   └── com_wrapper.rs
+        ├── errors/            # Core error types
+        │   └── mod.rs
+        ├── handlers/          # Message handling
+        │   ├── mod.rs
+        │   └── message_handler.rs
+        ├── models/            # Core data models
+        │   ├── mod.rs
+        │   ├── api_response.rs
+        │   ├── module_request.rs
+        │   └── server_events.rs
+        ├── registry/          # Module registration
+        │   ├── mod.rs
+        │   └── module_registry.rs
+        ├── response/          # Response building
+        │   ├── mod.rs
+        │   └── response_builder.rs
+        ├── traits/            # Core traits
+        │   ├── mod.rs
+        │   └── module_handler.rs
+        └── utils/             # Utility functions
+            ├── mod.rs
+            └── timestamp_utils.rs
 ```
 
 ## Key Dependencies
 
 - `anyhow` - Error handling
 - `thiserror` - Custom error derive
+- `async-trait` - Async trait support
 - `axum` - Web framework with WebSocket support (ws feature)
 - `tokio` - Async runtime
 - `tokio-tungstenite` - WebSocket client/server library
