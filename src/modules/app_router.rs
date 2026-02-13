@@ -22,7 +22,7 @@ struct AppState {
 
 fn app_state() -> AppState {
     let mut registry = ModuleRegistry::new();
-    registry.register("audio", Arc::new(AudioModule));
+    registry.register("audio", Arc::new(AudioModule::default()));
 
     AppState {
         broadcaster: Arc::new(Broadcaster::new(100)),

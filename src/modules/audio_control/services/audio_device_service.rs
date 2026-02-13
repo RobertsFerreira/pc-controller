@@ -9,8 +9,6 @@ use windows::Win32::{
     System::Com::{CoCreateInstance, StructuredStorage::PROPVARIANT, CLSCTX_ALL, STGM_READ},
 };
 
-/// Lista todos os dispositivos de saída de áudio ativos
-///
 /// Usa a API de dispositivos de áudio do Windows para enumerar
 /// dispositivos de saída (speakers, headphones, etc.) que estão
 /// atualmente ativos e conectados.

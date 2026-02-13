@@ -9,5 +9,7 @@ pub mod utils;
 pub use audio_handlers::handle_action_sound_request;
 pub use audio_module::AudioModule;
 
+mod platform;
+
 #[cfg(test)]
 mod tests;
