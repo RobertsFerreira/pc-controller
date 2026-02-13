@@ -3,7 +3,10 @@ use crate::modules::audio_control::{
     types::{AudioResult, GroupId},
 };
 
-pub trait AudioSystemInterface: AudioOutPutDeviceControl + AudioSessionControl + Send + Sync {}
+pub trait AudioSystemInterface:
+    AudioOutPutDeviceControl + AudioSessionControl + Send + Sync
+{
+}
 impl<T> AudioSystemInterface for T where T: AudioOutPutDeviceControl + AudioSessionControl {}
 
 pub trait AudioOutPutDeviceControl: Send + Sync {
