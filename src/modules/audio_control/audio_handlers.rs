@@ -1,7 +1,6 @@
 use crate::modules::audio_control::{
     models::audio_requests::ActionSoundRequest,
-    platform::audio_system_interface::AudioSystemInterface,
-    types::GroupId,
+    platform::audio_system_interface::AudioSystemInterface, types::GroupId,
 };
 use crate::modules::core::errors::error_codes;
 use crate::modules::core::response::{create_error_response, create_response};
@@ -53,10 +52,10 @@ async fn handle_set_group_volume(
     group_id: GroupId,
     volume: f32,
 ) -> ModuleResponse {
-    if !(0.0..=1.0).contains(&volume) {
+    if !(0.0..=100.0).contains(&volume) {
         return Ok(create_error_response(
             error_codes::BAD_REQUEST,
-            "Volume must be between 0.0 and 1.0",
+            "Volume must be between 0.0 and 100.0",
             None,
         ));
     }
