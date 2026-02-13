@@ -221,3 +221,95 @@ src/
 - `windows` - Windows API bindings
 - `tracing` - Structured logging
 - `futures` - Async utilities
+
+## Agent Workflow
+
+Use the three agents below in sequence for feature work.
+
+### Agent 1: Idea Refiner
+
+Goal:
+
+- Turn a raw request into a clear implementation brief.
+
+Inputs:
+
+- User goal and constraints
+- Current code context
+
+Outputs:
+
+- Problem statement (1-3 lines)
+- Scope (in scope / out of scope)
+- Technical approach summary
+- Acceptance criteria checklist
+- Risks and unknowns list
+
+Definition of done:
+
+- The brief is specific enough that another agent can implement without guessing behavior.
+
+### Agent 2: Implementer (with Tests)
+
+Goal:
+
+- Implement the approved brief and add/adjust tests.
+
+Inputs:
+
+- Idea Refiner brief
+- Existing project standards in this file
+
+Outputs:
+
+- Code changes for feature behavior
+- Automated tests covering happy path, error path, and edge cases
+- Notes on tradeoffs and any intentional limitations
+
+Required checks:
+
+- `cargo fmt --check`
+- `cargo clippy`
+- `cargo test`
+
+Definition of done:
+
+- Feature works as described by acceptance criteria and tests pass locally.
+
+### Agent 3: QA Reviewer
+
+Goal:
+
+- Validate quality, regressions, and behavior against acceptance criteria.
+
+Inputs:
+
+- Idea Refiner brief
+- Implementer diff and test results
+
+Outputs:
+
+- Findings list ordered by severity (critical/high/medium/low)
+- Reproduction steps for each issue
+- Final status: approved or changes requested
+
+QA checklist:
+
+- Functional correctness vs acceptance criteria
+- Regression risk in touched modules
+- Error handling and response format consistency
+- Test quality and missing coverage
+- Logging and observability for failures
+
+Definition of done:
+
+- Either explicit approval or a concrete, actionable bug list.
+
+### Handoff Contract
+
+For each handoff, include:
+
+- Context summary (max 10 lines)
+- Exact files touched or reviewed
+- Commands executed and key results
+- Open questions (if any)
