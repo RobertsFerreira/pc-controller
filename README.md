@@ -7,7 +7,7 @@ API WebSocket para controle de dispositivos de áudio e sessões de áudio no Wi
 - Controle de volume de dispositivos de saída de áudio
 - Listagem de dispositivos de áudio disponíveis
 - Gerenciamento de sessões de áudio por aplicativo
-- Comunicação via WebSocket para tempo real
+- Comunicação via WebSocket em tempo real
 - API JSON simples e intuitiva
 
 ## Pré-requisitos
@@ -50,20 +50,32 @@ Conecte-se ao endpoint `/ws` e envie mensagens JSON:
 
 ```MD
 src/
+├── lib.rs                     # Exports da biblioteca
 ├── main.rs                    # Entry point - WebSocket server
+├── modules.rs                 # Declaração dos módulos principais
 └── modules/
-    ├── core/                  # Funcionalidades globais
-    │   ├── broadcast.rs       # Sistema de broadcast para clientes
-    │   ├── global_handler.rs  # Roteador de mensagens
-    │   ├── response_builder.rs # Construtor de respostas JSON
-    │   └── models/            # Tipos globais
-    └── volume_control/        # Controle de áudio
-        ├── audio_handlers.rs  # Handlers de mensagens WebSocket
-        ├── com_utils.rs       # Utilitários COM do Windows
-        ├── sound_device_service.rs    # Controle de dispositivos
-        ├── sound_session_service.rs   # Controle de sessões
-        ├── volume_control_command.rs  # Comandos de controle
-        └── models/            # Tipos relacionados a áudio
+    ├── app_router.rs          # Roteamento de mensagens WebSocket
+    ├── audio_control/         # Controle de áudio
+    │   ├── audio_handlers.rs  # Handlers de mensagens
+    │   ├── audio_module.rs    # Módulo de áudio
+    │   ├── errors/            # Erros do domínio de áudio
+    │   ├── models/            # Requests/responses e modelos de áudio
+    │   ├── platform/          # Implementações específicas de plataforma
+    │   ├── services/          # Regras de negócio de dispositivos/sessões
+    │   ├── tests/             # Testes do módulo de áudio
+    │   ├── types/             # Tipos compartilhados do módulo
+    │   └── utils/             # Utilitários auxiliares
+    └── core/                  # Infraestrutura comum
+        ├── broadcasting/      # Sistema de broadcast para clientes
+        ├── com/               # Utilitários COM
+        ├── errors/            # Erros centrais
+        ├── handlers/          # Processamento de mensagens
+        ├── models/            # Modelos e contratos base
+        ├── registry/          # Registro de módulos
+        ├── response/          # Construção padronizada de respostas
+        ├── tests_support/     # Infra para testes
+        ├── traits/            # Traits compartilhadas
+        └── utils/             # Utilitários gerais
 ```
 
 ## Desenvolvimento

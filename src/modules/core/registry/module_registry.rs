@@ -26,8 +26,7 @@ impl ModuleRegistry {
             Some(handler) => handler.handle(request).await,
             None => Ok(create_error_response(
                 error_codes::NOT_FOUND,
-                &format!("Resource not found"),
-                // &format!("Module '{}' not found", module_name),
+                "Resource not found",
                 None,
             )),
         }

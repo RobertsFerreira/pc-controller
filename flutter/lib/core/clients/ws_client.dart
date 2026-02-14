@@ -46,12 +46,13 @@ class WsClient implements WsClientInterface {
   }
 
   @override
-  Future<void> connect() async {
+  Future<void> connect({bool fromRetry = false}) async {
     if (_status == WsStatus.connected || _status == WsStatus.connecting) {
       return;
     }
 
     _manuallyDisconnected = false;
+    if (!fromRetry) _attempt = 0;
 
     try {
       final url = Uri.parse(this.url);
@@ -144,7 +145,7 @@ class WsClient implements WsClientInterface {
     _retryTimer?.cancel();
     _retryTimer = Timer(nextDelay, () {
       debugPrint('Attempting to reconnect...');
-      connect();
+      connect(fromRetry: true);
     });
   }
 

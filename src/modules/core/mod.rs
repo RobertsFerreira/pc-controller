@@ -5,6 +5,8 @@ pub mod handlers;
 pub mod models;
 pub mod registry;
 pub mod response;
+#[cfg(test)]
+pub mod tests_support;
 pub mod traits;
 pub mod utils;
 

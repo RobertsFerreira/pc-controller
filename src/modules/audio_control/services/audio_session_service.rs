@@ -126,10 +126,6 @@ fn create_session_group_from_guid(
     }
 }
 
-/// Obtém todos os grupos de sessões de áudio para um dispositivo
-///
-/// Sessões são agrupadas pelo GUID de agrupamento. Sessões com o mesmo GUID
-/// pertencem ao mesmo aplicativo e compartilham configurações de volume.
 pub fn get_session_for_device(device_id: &str) -> AudioResult<Vec<SessionGroup>> {
     let _com_ctx = ComContext::new()?;
     let device = get_device_by_id(device_id);
@@ -168,9 +164,6 @@ pub fn get_session_for_device(device_id: &str) -> AudioResult<Vec<SessionGroup>>
     }
 }
 
-/// Define o volume para todas as sessões de um grupo
-///
-/// Busca sessões pelo group_id e define o mesmo volume para todas.
 pub fn set_group_volume(group_id: &GroupId, device_id: &str, volume: f32) -> AudioResult<()> {
     let _com_ctx = ComContext::new()?;
     let device = get_device_by_id(device_id);
