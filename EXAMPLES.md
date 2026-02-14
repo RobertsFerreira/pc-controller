@@ -1,20 +1,38 @@
-# PC Controller Audio API
+# PC Controller WebSocket API Examples
 
-WebSocket API for controlling audio devices and sessions on Windows.
+Exemplos atualizados com o formato real de mensagens aceito pelo servidor.
 
-## WebSocket Connection
+## Conexao WebSocket
 
-Connect to: `ws://localhost:3000/ws`
+Conecte em: `ws://localhost:3000/ws`
 
-## API Endpoints
+## Formato de Request (obrigatorio)
 
-### List Output Devices
+Todas as mensagens devem usar envelope global com `module` e `payload`:
+
+```json
+{
+  "module": "audio",
+  "payload": {
+    "action": "devices_list"
+  }
+}
+```
+
+Sem `payload`, o servidor retorna erro `400`.
+
+## Acoes do modulo `audio`
+
+### 1) Listar dispositivos de saida
 
 **Request:**
 
 ```json
 {
-  "action": "devices_list"
+  "module": "audio",
+  "payload": {
+    "action": "devices_list"
+  }
 }
 ```
 
@@ -35,14 +53,17 @@ Connect to: `ws://localhost:3000/ws`
 }
 ```
 
-### List Sessions for a Device
+### 2) Listar sessoes de um dispositivo
 
 **Request:**
 
 ```json
 {
-  "action": "session_list",
-  "device_id": "{DEVICE_ID}"
+  "module": "audio",
+  "payload": {
+    "action": "session_list",
+    "device_id": "{DEVICE_ID}"
+  }
 }
 ```
 
@@ -52,7 +73,7 @@ Connect to: `ws://localhost:3000/ws`
 {
   "data": [
     {
-      "id": "session-12345-75",
+      "id": "11111111-1111-1111-1111-111111111111",
       "display_name": "Spotify",
       "volume_level": 75.0,
       "state": "active",
@@ -66,15 +87,16 @@ Connect to: `ws://localhost:3000/ws`
 }
 ```
 
-### Get Volume
-
-Returns the system master volume level.
+### 3) Obter volume master
 
 **Request:**
 
 ```json
 {
-  "action": "get_volume"
+  "module": "audio",
+  "payload": {
+    "action": "get_volume"
+  }
 }
 ```
 
@@ -82,23 +104,28 @@ Returns the system master volume level.
 
 ```json
 {
-  "data": 50.0,
+  "data": 55.0,
   "headers": {
     "timestamp": 1737100800
   }
 }
 ```
 
-### Set Group Volume
+### 4) Definir volume de um grupo/sessao
+
+`volume` deve estar entre `0.0` e `100.0`.
 
 **Request:**
 
 ```json
 {
-  "action": "set_group_volume",
-  "device_id": "{DEVICE_ID}",
-  "group_id": "{GROUP_ID}",
-  "volume": 75.0
+  "module": "audio",
+  "payload": {
+    "action": "set_group_volume",
+    "device_id": "{DEVICE_ID}",
+    "group_id": "11111111-1111-1111-1111-111111111111",
+    "volume": 50.0
+  }
 }
 ```
 
@@ -106,153 +133,171 @@ Returns the system master volume level.
 
 ```json
 {
-  "data": {
-    "success": true,
-    "volume": 75.0
-  },
+  "data": "Group volume set successfully",
   "headers": {
     "timestamp": 1737100800
   }
 }
 ```
 
-## Session States
+## Estados de sessao
 
-- `active` - Session is currently playing audio
-- `inactive` - Session is open but not playing
-- `expired` - Session has been closed
+- `active`
+- `inactive`
+- `expired`
 
-## Error Responses
+## Formato de erro
 
-All errors follow this format:
+```json
+{
+  "code": 400,
+  "message": "Invalid request format"
+}
+```
+
+Campos:
+
+- `code`: codigo HTTP-like (`400`, `404`, `500`)
+- `message`: descricao do erro
+- `details`: opcional; pode nao estar presente
+
+## Erros comuns
+
+### JSON invalido
+
+```text
+{invalid json}
+```
+
+Resposta esperada:
+
+```json
+{
+  "code": 400,
+  "message": "Invalid request format"
+}
+```
+
+### Payload ausente
+
+**Request:**
+
+```json
+{
+  "module": "audio"
+}
+```
+
+Resposta esperada (`message` contem "Payload is missing"):
+
+```json
+{
+  "code": 400,
+  "message": "Payload is missing in the request"
+}
+```
+
+### Modulo nao registrado
+
+**Request:**
+
+```json
+{
+  "module": "display",
+  "payload": {
+    "action": "get_volume"
+  }
+}
+```
+
+Resposta esperada:
 
 ```json
 {
   "code": 404,
-  "message": "Device not found: {device_id}",
-  "details": "Additional error context if needed (optional)"
+  "message": "Resource not found"
 }
 ```
 
-### Error Codes
+### Volume fora do intervalo
 
-- `400` - Bad Request (e.g., invalid device ID)
-- `404` - Not Found (e.g., device or sessions not found)
-- `500` - Internal Server Error (e.g., COM initialization failed)
+Se `volume < 0.0` ou `volume > 100.0`, a desserializacao da action falha e o servidor retorna `400`.
 
-## Usage Examples
+Exemplo de request invalida:
 
-### Example 1: List Devices and Sessions (JavaScript)
+```json
+{
+  "module": "audio",
+  "payload": {
+    "action": "set_group_volume",
+    "device_id": "{DEVICE_ID}",
+    "group_id": "{GROUP_ID}",
+    "volume": 100.1
+  }
+}
+```
+
+## Exemplo JavaScript
 
 ```javascript
 const ws = new WebSocket('ws://localhost:3000/ws');
 
 ws.onopen = () => {
-  // Step 1: Get list of output devices
-  ws.send(JSON.stringify({ action: 'devices_list' }));
+  ws.send(JSON.stringify({
+    module: 'audio',
+    payload: { action: 'devices_list' }
+  }));
 };
 
 ws.onmessage = (event) => {
-  const response = JSON.parse(event.data);
+  const msg = JSON.parse(event.data);
 
-  if (response.headers && response.headers.count !== undefined && Array.isArray(response.data)) {
-    // Device list received
-    console.log('Devices:', response.data);
-    
-    if (response.data.length > 0) {
-      // Step 2: Get sessions for first device
-      const deviceId = response.data[0].id;
-      ws.send(JSON.stringify({
-        action: 'session_list',
-        device_id: deviceId
-      }));
-    }
-  } else if (response.data && response.data[0] && response.data[0].display_name) {
-    // Session list received
-    console.log('Sessions:', response.data);
-    response.data.forEach(session => {
-      console.log(`- ${session.display_name} (State: ${session.state}, Volume: ${session.volume_level}%, Muted: ${session.muted})`);
-    });
-  } else if (response.code) {
-    // Error response
-    console.error('Error:', response.message);
+  if (msg.code) {
+    console.error('Erro:', msg.code, msg.message);
+    return;
   }
+
+  console.log('Resposta:', msg);
 };
 ```
 
-### Example 2: List Devices and Sessions (Python)
+## Exemplo Python
 
 ```python
-import json
 import asyncio
+import json
 import websockets
 
-async def get_audio_devices_and_sessions():
+async def main():
     uri = "ws://localhost:3000/ws"
-    
-    async with websockets.connect(uri) as websocket:
-        # Get devices
-        await websocket.send(json.dumps({"action": "devices_list"}))
-        devices_response = await websocket.recv()
-        devices = json.loads(devices_response)
-        
-        print("Available Devices:")
-        for device in devices['data']:
-            print(f"  - {device['name']} (ID: {device['id']})")
-        
-        if devices['data']:
-            # Get sessions for first device
-            device_id = devices['data'][0]['id']
-            await websocket.send(json.dumps({
-                "action": "session_list",
-                "device_id": device_id
-            }))
-            sessions_response = await websocket.recv()
-            sessions = json.loads(sessions_response)
-            
-            print(f"\nSessions for {device_id}:")
-            for session in sessions['data']:
-                print(f"  - {session['display_name']}")
-                print(f"    Volume: {session['volume_level']}%")
-                print(f"    State: {session['state']}")
-                print(f"    Muted: {session['muted']}")
+    async with websockets.connect(uri) as ws:
+        await ws.send(json.dumps({
+            "module": "audio",
+            "payload": {"action": "get_volume"}
+        }))
 
-asyncio.run(get_audio_devices_and_sessions())
+        response = await ws.recv()
+        print(json.loads(response))
+
+asyncio.run(main())
 ```
 
-### Example 3: List Devices and Sessions (cURL with websocat)
+## Exemplo websocat
 
 ```bash
-# Install websocat: https://github.com/vi/websocat
+# Listar dispositivos
+echo '{"module":"audio","payload":{"action":"devices_list"}}' | websocat ws://localhost:3000/ws
 
-# List devices
-echo '{"action":"devices_list"}' | websocat ws://localhost:3000/ws
+# Listar sessoes
+echo '{"module":"audio","payload":{"action":"session_list","device_id":"{DEVICE_ID}"}}' | websocat ws://localhost:3000/ws
 
-# List sessions for a device (replace {DEVICE_ID} with actual ID)
-echo '{"action":"session_list","device_id":"{DEVICE_ID}"}' | websocat ws://localhost:3000/ws
-
-# Set group volume (replace {DEVICE_ID} and {GROUP_ID} with actual IDs)
-echo '{"action":"set_group_volume","device_id":"{DEVICE_ID}","group_id":"{GROUP_ID}","volume":75.0}' | websocat ws://localhost:3000/ws
+# Definir volume de grupo
+echo '{"module":"audio","payload":{"action":"set_group_volume","device_id":"{DEVICE_ID}","group_id":"{GROUP_ID}","volume":75.0}}' | websocat ws://localhost:3000/ws
 ```
 
-## Notes
+## Observacoes
 
-- **device_id**: Required for `session_list` and `set_group_volume`. Get this from the `devices_list` response.
-- **group_id**: Required for `set_group_volume`. Use the session `id` from the `session_list` response.
-- **volume_level**: Returned as a percentage (0-100) for easy frontend integration.
-- **WebSocket**: The connection is persistent; you can send multiple requests without reconnecting.
-
-## Development
-
-Build the project:
-
-```bash
-cargo build
-cargo run
-```
-
-Run clippy for linting:
-
-```bash
-cargo clippy
-```
+- `device_id` vem do retorno de `devices_list`.
+- `group_id` vem de `session_list` (campo `id`).
+- A conexao WebSocket e persistente; envie varias requests na mesma sessao.
+- Consulte `README.md` para consideracoes de seguranca (autenticacao, exposicao de rede e TLS/WSS).
