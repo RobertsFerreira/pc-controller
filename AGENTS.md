@@ -42,7 +42,7 @@ Example:
 ```rust
 use std::{collections::HashMap, path::Path};
 use windows::Win32::Media::Audio::*;
-use crate::modules::audio_control::models::SessionError;
+use crate::modules::audio_control::errors::AudioError;
 ```
 
 ### Formatting
