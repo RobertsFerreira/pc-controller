@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:pc_remote_control/core/clients/message.dart';
 import 'package:pc_remote_control/core/clients/ws_client_interface.dart';
 import 'package:pc_remote_control/core/settings/app_settings.dart';
 import 'package:web_socket/web_socket.dart';
@@ -105,12 +106,12 @@ class WsClient implements WsClientInterface {
   Stream<dynamic> get messages => _messages.stream;
 
   @override
-  void send(String data) {
+  void send(Message data) {
     if (_channel == null || _status != WsStatus.connected) {
       throw StateError('WebSocket is not connected');
     }
 
-    _channel!.sendText(data);
+    _channel!.sendText(data.toJson());
   }
 
   @override

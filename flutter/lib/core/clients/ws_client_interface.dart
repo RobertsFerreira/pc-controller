@@ -1,3 +1,5 @@
+import 'package:pc_remote_control/core/clients/message.dart';
+
 enum WsStatus {
   disconnected,
   connected,
@@ -11,7 +13,7 @@ enum WsStatus {
 abstract class WsClientInterface {
   Future<void> connect();
   Future<void> disconnect();
-  void send(String data);
+  void send(Message data);
 
   WsStatus get status;
 
