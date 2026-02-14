@@ -52,6 +52,7 @@ class WsClient implements WsClientInterface {
     }
 
     _manuallyDisconnected = false;
+    _attempt = 0;
 
     try {
       final url = Uri.parse(this.url);
