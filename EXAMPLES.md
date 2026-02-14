@@ -2,11 +2,11 @@
 
 Exemplos atualizados com o formato real de mensagens aceito pelo servidor.
 
-## Conexao WebSocket
+## Conexão WebSocket
 
 Conecte em: `ws://localhost:3000/ws`
 
-## Formato de Request (obrigatorio)
+## Formato de Request (obrigatório)
 
 Todas as mensagens devem usar envelope global com `module` e `payload`:
 
