@@ -1,6 +1,6 @@
 use crate::modules::audio_control::{
     models::{DeviceSound, SessionGroup},
-    platform::audio_system_interface::{AudioOutPutDeviceControl, AudioSessionControl},
+    platform::audio_system_interface::{AudioOutputDeviceControl, AudioSessionControl},
     services as windows_audio_service,
     types::{AudioResult, GroupId},
 };
@@ -19,7 +19,7 @@ impl WindowsAudioAdapter {
     }
 }
 
-impl AudioOutPutDeviceControl for WindowsAudioAdapter {
+impl AudioOutputDeviceControl for WindowsAudioAdapter {
     fn list_output_devices(&self) -> AudioResult<Vec<DeviceSound>> {
         self.devices_control.list_output_devices()
     }
@@ -53,7 +53,7 @@ impl WindowsAudioDeviceControl {
     }
 }
 
-impl AudioOutPutDeviceControl for WindowsAudioDeviceControl {
+impl AudioOutputDeviceControl for WindowsAudioDeviceControl {
     fn list_output_devices(&self) -> AudioResult<Vec<DeviceSound>> {
         windows_audio_service::list_output_devices()
     }

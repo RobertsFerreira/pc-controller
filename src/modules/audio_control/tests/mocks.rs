@@ -1,13 +1,13 @@
 use crate::modules::audio_control::{
     models::{SessionGroup, SessionState},
-    platform::audio_system_interface::{AudioOutPutDeviceControl, AudioSessionControl},
+    platform::audio_system_interface::{AudioOutputDeviceControl, AudioSessionControl},
     types::GroupId,
 };
 
 #[derive(Default)]
 pub struct MockAudioSystem;
 
-impl AudioOutPutDeviceControl for MockAudioSystem {
+impl AudioOutputDeviceControl for MockAudioSystem {
     fn list_output_devices(
         &self,
     ) -> crate::modules::audio_control::types::AudioResult<

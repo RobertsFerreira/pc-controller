@@ -4,12 +4,12 @@ use crate::modules::audio_control::{
 };
 
 pub trait AudioSystemInterface:
-    AudioOutPutDeviceControl + AudioSessionControl + Send + Sync
+    AudioOutputDeviceControl + AudioSessionControl + Send + Sync
 {
 }
-impl<T> AudioSystemInterface for T where T: AudioOutPutDeviceControl + AudioSessionControl {}
+impl<T> AudioSystemInterface for T where T: AudioOutputDeviceControl + AudioSessionControl {}
 
-pub trait AudioOutPutDeviceControl: Send + Sync {
+pub trait AudioOutputDeviceControl: Send + Sync {
     /// Lists all active audio output devices available on the system.
     ///
     fn list_output_devices(&self) -> AudioResult<Vec<DeviceSound>>;
