@@ -1,4 +1,4 @@
-# AGENTS.md
+﻿# AGENTS.md
 
 ## Build, Lint, and Test Commands
 
@@ -190,8 +190,8 @@ Standard error format:
 src/
 ├── main.rs                    # Entry point with WebSocket server
 ├── lib.rs                     # Library exports
+├── modules.rs                 # Top-level module declarations
 └── modules/
-    ├── mod.rs                 # Module declarations
     ├── app_router.rs          # WebSocket router and handlers
     ├── audio_control/         # Audio control module
     │   ├── mod.rs             # Audio control exports
@@ -222,8 +222,7 @@ src/
     │   │   └── audio_process_utils.rs
     │   └── tests/             # Audio module tests
     │       ├── mod.rs
-    │       ├── audio_handlers_tests.rs
-    │       ├── audio_module_tests.rs
+    │       ├── mocks.rs
     │       ├── test_server.rs
     │       └── websocket_integration_tests.rs
     └── core/                  # Core infrastructure
@@ -253,9 +252,40 @@ src/
         ├── traits/            # Core traits
         │   ├── mod.rs
         │   └── module_handler.rs
+        ├── tests_support/     # Test server utilities
+        │   ├── mod.rs
+        │   └── base_test_server.rs
         └── utils/             # Utility functions
             ├── mod.rs
             └── timestamp_utils.rs
+
+flutter/
+├── lib/
+│   ├── main.dart
+│   └── core/
+│       ├── clients/
+│       │   ├── ws_client.dart
+│       │   └── ws_client_interface.dart
+│       ├── di/
+│       │   ├── di_container.dart
+│       │   ├── get_it_container.dart
+│       │   ├── injection_container.dart
+│       │   └── service_locator.dart
+│       └── settings/
+│           ├── app_settings.dart
+│           └── retry_config.dart
+├── windows/                   # Flutter Windows runner files
+├── test/
+│   └── widget_test.dart
+└── pubspec.yaml
+
+PC-Controller/                 # Bruno API collection
+├── bruno.json
+├── environments/
+│   └── hom.bru
+├── list devices.bru
+├── list session.bru
+└── set volume.bru
 ```
 
 ## Key Dependencies
