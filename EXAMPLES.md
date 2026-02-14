@@ -21,9 +21,9 @@ Todas as mensagens devem usar envelope global com `module` e `payload`:
 
 Sem `payload`, o servidor retorna erro `400`.
 
-## Acoes do modulo `audio`
+## Ações do módulo `audio`
 
-### 1) Listar dispositivos de saida
+### 1) Listar dispositivos de saída
 
 **Request:**
 
@@ -53,7 +53,7 @@ Sem `payload`, o servidor retorna erro `400`.
 }
 ```
 
-### 2) Listar sessoes de um dispositivo
+### 2) Listar sessões de um dispositivo
 
 **Request:**
 
@@ -111,7 +111,7 @@ Sem `payload`, o servidor retorna erro `400`.
 }
 ```
 
-### 4) Definir volume de um grupo/sessao
+### 4) Definir volume de um grupo/sessão
 
 `volume` deve estar entre `0.0` e `100.0`.
 
@@ -140,7 +140,7 @@ Sem `payload`, o servidor retorna erro `400`.
 }
 ```
 
-## Estados de sessao
+## Estados de sessão
 
 - `active`
 - `inactive`
@@ -158,7 +158,7 @@ Sem `payload`, o servidor retorna erro `400`.
 Campos:
 
 - `code`: codigo HTTP-like (`400`, `404`, `500`)
-- `message`: descricao do erro
+- `message`: descrição do erro
 - `details`: opcional; pode nao estar presente
 
 ## Erros comuns
@@ -221,7 +221,7 @@ Resposta esperada:
 
 ### Volume fora do intervalo
 
-Se `volume < 0.0` ou `volume > 100.0`, a desserializacao da action falha e o servidor retorna `400`.
+Se `volume < 0.0` ou `volume > 100.0`, a desserialização da action falha e o servidor retorna `400`.
 
 Exemplo de request invalida:
 
@@ -282,22 +282,22 @@ async def main():
 asyncio.run(main())
 ```
 
-## Exemplo websocat
+## Exemplo websocket
 
 ```bash
 # Listar dispositivos
-echo '{"module":"audio","payload":{"action":"devices_list"}}' | websocat ws://localhost:3000/ws
+echo '{"module":"audio","payload":{"action":"devices_list"}}' | websocket ws://localhost:3000/ws
 
 # Listar sessoes
-echo '{"module":"audio","payload":{"action":"session_list","device_id":"{DEVICE_ID}"}}' | websocat ws://localhost:3000/ws
+echo '{"module":"audio","payload":{"action":"session_list","device_id":"{DEVICE_ID}"}}' | websocket ws://localhost:3000/ws
 
 # Definir volume de grupo
-echo '{"module":"audio","payload":{"action":"set_group_volume","device_id":"{DEVICE_ID}","group_id":"{GROUP_ID}","volume":75.0}}' | websocat ws://localhost:3000/ws
+echo '{"module":"audio","payload":{"action":"set_group_volume","device_id":"{DEVICE_ID}","group_id":"{GROUP_ID}","volume":75.0}}' | websocket ws://localhost:3000/ws
 ```
 
-## Observacoes
+## Observações
 
 - `device_id` vem do retorno de `devices_list`.
 - `group_id` vem de `session_list` (campo `id`).
-- A conexao WebSocket e persistente; envie varias requests na mesma sessao.
-- Consulte `README.md` para consideracoes de seguranca (autenticacao, exposicao de rede e TLS/WSS).
+- A conexão WebSocket e persistente; envie varias requests na mesma sessão.
+- Consulte `README.md` para considerações de segurança (autenticação, exposição de rede e TLS/WSS).
