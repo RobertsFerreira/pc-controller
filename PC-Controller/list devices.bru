@@ -1,24 +1,16 @@
 meta {
   name: list devices
-  type: ws
+  type: http
   seq: 1
 }
 
-ws {
-  url: {{baseUrl}}/ws
-  body: ws
-  auth: none
+get {
+  url: http://{{host}}:{{port}}/api/v1/list_devices
+  body: none
+  auth: inherit
 }
 
-body:ws {
-  name: message 1
-  type: json
-  content: '''
-    {
-      "module": "audio",
-      "payload": {
-        "action": "devices_list"
-      }
-    }
-  '''
+settings {
+  encodeUrl: true
+  timeout: 0
 }

@@ -1,27 +1,25 @@
 meta {
   name: set volume
-  type: ws
+  type: http
   seq: 3
 }
 
-ws {
-  url: {{baseUrl}}/ws
-  body: ws
+post {
+  url: http://{{host}}:{{port}}/api/v1/set_group_volume
+  body: json
   auth: inherit
 }
 
-body:ws {
-  name: message 1
-  type: json
-  content: '''
-    {
-      "module": "audio",
-      "payload": {
-        "action": "set_group_volume",
-        "device_id": "{0.0.0.00000000}.{2a72c576-7c4a-465a-bb6b-816652d46508}",
-        "group_id": "3B7836A1-A8CE-4292-B8B8-5D0C5160EDCD",
-        "volume": 100
-      }
-    }
-  '''
+body:json {
+  {
+    "action": "set_group_volume",
+    "device_id": "{0.0.0.00000000}.{ca5adfb8-9cd7-42fc-ba1d-9c4553b5fbef}",
+    "group_id": "7A4B9B6C-9142-44CC-8BE4-EB2A7FE337FD",
+    "volume": 100
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
 }

@@ -1,0 +1,16 @@
+meta {
+  name: list sessions
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{host}}:{{port}}/api/v1/list_session/{0.0.0.00000000}.{ca5adfb8-9cd7-42fc-ba1d-9c4553b5fbef}
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
