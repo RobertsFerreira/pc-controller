@@ -55,7 +55,7 @@ impl ModuleHandler for AudioModule {
                 }),
             )
             .route(
-                "/api/v1/list_device",
+                "/api/v1/list_devices",
                 get(move || {
                     let module = Arc::clone(&for_list_device);
                     async move {
