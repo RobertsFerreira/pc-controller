@@ -1,5 +1,4 @@
 use crate::modules::audio_control::{
-    models::audio_requests::ActionSoundRequest,
     platform::audio_system_interface::AudioSystemInterface, types::GroupId,
 };
 use crate::modules::core::errors::error_codes;
@@ -7,35 +6,14 @@ use crate::modules::core::response::{create_error_response, create_response};
 use crate::modules::core::traits::module_handler::ModuleResponse;
 use anyhow::Context;
 
-/// Main handler for audio requests.
-///
-/// Routes to the correct handler based on the requested action.
-pub async fn handle_action_sound_request(
-    audio_system: &dyn AudioSystemInterface,
-    action: ActionSoundRequest,
-) -> ModuleResponse {
-    match action {
-        ActionSoundRequest::GetVolume => handle_get_volume(audio_system).await,
-        ActionSoundRequest::DevicesList => handle_list_devices(audio_system).await,
-        ActionSoundRequest::SessionList { device_id } => {
-            handle_list_sessions(audio_system, device_id).await
-        }
-        ActionSoundRequest::SetGroupVolume {
-            device_id,
-            group_id,
-            volume,
-        } => handle_set_group_volume(audio_system, device_id, group_id, volume.into()).await,
-    }
-}
-
-async fn handle_get_volume(audio_system: &dyn AudioSystemInterface) -> ModuleResponse {
+pub fn handle_get_volume(audio_system: &dyn AudioSystemInterface) -> ModuleResponse {
     let volume = audio_system
         .get_actual_volume()
         .context("Failed to get volume")?;
     Ok(create_response(volume, None))
 }
 
-async fn handle_list_sessions(
+pub fn handle_list_sessions(
     audio_system: &dyn AudioSystemInterface,
     device_id: String,
 ) -> ModuleResponse {
@@ -46,7 +24,7 @@ async fn handle_list_sessions(
     Ok(create_response(sessions, Some(size)))
 }
 
-async fn handle_set_group_volume(
+pub fn handle_set_group_volume(
     audio_system: &dyn AudioSystemInterface,
     device_id: String,
     group_id: GroupId,
@@ -66,7 +44,7 @@ async fn handle_set_group_volume(
     Ok(create_response("Group volume set successfully", None))
 }
 
-async fn handle_list_devices(audio_system: &dyn AudioSystemInterface) -> ModuleResponse {
+pub fn handle_list_devices(audio_system: &dyn AudioSystemInterface) -> ModuleResponse {
     let devices = audio_system
         .list_output_devices()
         .context("Failed to get output devices")?;

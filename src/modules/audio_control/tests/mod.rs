@@ -1,3 +1,3 @@
+pub mod audio_control_integration_tests;
 mod mocks;
 pub mod test_server;
-pub mod websocket_integration_tests;

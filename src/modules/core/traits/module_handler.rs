@@ -1,9 +1,9 @@
-use async_trait::async_trait;
-use axum::extract::ws::Message;
+use std::sync::Arc;
 
-pub type ModuleResponse = Result<Message, anyhow::Error>;
+use axum::{response::Response, Router};
 
-#[async_trait]
+pub type ModuleResponse = Result<Response, anyhow::Error>;
+
 pub trait ModuleHandler: Send + Sync {
-    async fn handle(&self, request: &str) -> Result<Message, anyhow::Error>;
+    fn routes(self: Arc<Self>) -> Router;
 }

@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use serde_json::Value;
+
 use super::mocks::MockAudioSystem;
 use crate::modules::audio_control::audio_module::AudioModule;
 use crate::modules::core::tests_support::base_test_server::BaseTestServer;
@@ -19,11 +21,15 @@ impl TestServer {
         Self { inner }
     }
 
-    pub async fn send_message(&mut self, message: &str) {
-        self.inner.send_message(message).await;
+    pub async fn get(&self, path: &str) -> reqwest::Response {
+        self.inner.get(path).await
     }
 
-    pub async fn receive_message(&mut self) -> String {
-        self.inner.receive_message().await
+    pub async fn post_json(&self, path: &str, body: Value) -> reqwest::Response {
+        self.inner.post_json(path, body).await
+    }
+
+    pub async fn post_raw(&self, path: &str, body: &str) -> reqwest::Response {
+        self.inner.post_raw(path, body).await
     }
 }

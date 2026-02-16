@@ -1,4 +1,3 @@
-use axum::extract::ws::Message;
 use serde::Serialize;
 
 #[derive(Serialize, Debug)]
@@ -18,9 +17,7 @@ impl<T> ApiResponse<T>
 where
     T: Serialize,
 {
-    pub fn to_json(&self) -> Result<Message, anyhow::Error> {
-        serde_json::to_string(&self)
-            .map(Message::text)
-            .map_err(anyhow::Error::from)
+    pub fn to_json(&self) -> Result<String, anyhow::Error> {
+        serde_json::to_string(&self).map_err(anyhow::Error::from)
     }
 }

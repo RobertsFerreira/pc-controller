@@ -1,4 +1,4 @@
-use axum::extract::ws::Message;
+use axum::{body::Body, http::header::CONTENT_TYPE, response::Response};
 use serde::Serialize;
 
 use crate::modules::core::{
@@ -15,7 +15,7 @@ use crate::modules::core::{
 ///
 /// # Returns
 /// JSON string no formato `{ data, headers: { timestamp, count? } }`
-pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Message {
+pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Response {
     let response = ApiResponse {
         data,
         headers: ResponseHeaders {
@@ -25,7 +25,7 @@ pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Message {
     };
 
     match response.to_json() {
-        Ok(msg) => msg,
+        Ok(json) => build_response(200, json),
         Err(e) => {
             tracing::error!("Failed to serialize success response: {:?}", e);
             create_error_response(
@@ -37,13 +37,13 @@ pub fn create_response<T: Serialize>(data: T, count: Option<usize>) -> Message {
     }
 }
 
-/// Cria uma mensagem de erro WebSocket com detalhes
+/// Cria uma resposta de erro HTTP com detalhes
 ///
 /// # Arguments
 /// * `code` - Código de erro HTTP
 /// * `message` - Mensagem de erro descritiva
 /// * `details` - Detalhes adicionais opcionais
-pub fn create_error_response(code: u16, message: &str, details: Option<String>) -> Message {
+pub fn create_error_response(code: u16, message: &str, details: Option<String>) -> Response {
     let error = ErrorResponse {
         code,
         message: message.to_string(),
@@ -51,10 +51,21 @@ pub fn create_error_response(code: u16, message: &str, details: Option<String>) 
     };
 
     match error.to_json() {
-        Ok(err_msg) => err_msg,
+        Ok(json) => build_response(code, json),
         Err(e) => {
             tracing::error!("Failed to serialize error response: {:?}", e);
-            Message::text("Failed to serialize error response")
+            build_response(
+                500,
+                "{\"code\":500,\"message\":\"Failed to serialize error response\"}".to_string(),
+            )
         }
     }
+}
+
+fn build_response(status: u16, body: String) -> Response {
+    Response::builder()
+        .status(status)
+        .header(CONTENT_TYPE, "application/json")
+        .body(Body::from(body))
+        .expect("failed to build HTTP response")
 }

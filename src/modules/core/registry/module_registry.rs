@@ -1,39 +1,35 @@
-use crate::modules::core::errors::error_codes;
-use crate::modules::core::response::create_error_response;
-use crate::modules::core::traits::module_handler::{ModuleHandler, ModuleResponse};
+use crate::modules::core::traits::module_handler::ModuleHandler;
+use axum::Router;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct ModuleRegistry {
-    handlers: HashMap<String, Arc<dyn ModuleHandler>>,
+    modules: HashMap<String, Arc<dyn ModuleHandler>>,
 }
 
 impl ModuleRegistry {
     pub fn new() -> Self {
         Self {
-            handlers: HashMap::new(),
+            modules: HashMap::new(),
         }
     }
 
     pub fn register(&mut self, module_name: &str, handler: Arc<dyn ModuleHandler>) {
-        self.handlers.insert(module_name.to_lowercase(), handler);
-    }
-
-    pub async fn handle(&self, module_name: &str, request: &str) -> ModuleResponse {
-        let handler = self.handlers.get(&module_name.to_lowercase());
-
-        match handler {
-            Some(handler) => handler.handle(request).await,
-            None => Ok(create_error_response(
-                error_codes::NOT_FOUND,
-                "Resource not found",
-                None,
-            )),
-        }
+        self.modules.insert(module_name.to_lowercase(), handler);
     }
 
     pub fn has_module(&self, module_name: &str) -> bool {
-        self.handlers.contains_key(&module_name.to_lowercase())
+        self.modules.contains_key(&module_name.to_lowercase())
+    }
+
+    pub fn http_routes(&self) -> Router {
+        let mut router = Router::new();
+
+        for module in self.modules.values() {
+            router = router.merge(Arc::clone(module).routes());
+        }
+
+        router
     }
 }
 
