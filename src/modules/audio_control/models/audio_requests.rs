@@ -12,11 +12,12 @@ pub struct Volume(f32);
 
 impl TryFrom<f32> for Volume {
     type Error = &'static str;
+
     fn try_from(v: f32) -> Result<Self, Self::Error> {
         if (0.0..=100.0).contains(&v) {
             Ok(Volume(v))
         } else {
-            Err("volume must be between 0.0 and 100.0")
+            Err("Volume must be between 0.0 and 100.0")
         }
     }
 }

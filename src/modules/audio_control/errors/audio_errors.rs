@@ -11,11 +11,8 @@ pub enum AudioError {
     #[error("Device not found: {device_id}")]
     DeviceNotFound { device_id: String },
 
-    #[error("Session manager failed")]
-    SessionManagerFailed(#[source] windows::core::Error),
-
-    #[error("Session enumeration failed")]
-    SessionEnumFailed(#[source] windows::core::Error),
+    #[error("{message}")]
+    InvalidRequestBody { message: String },
 
     #[error("No sessions found")]
     NoSessionsFound,
@@ -36,6 +33,7 @@ impl AudioError {
         if let Some(session_err) = error.downcast_ref::<AudioError>() {
             match session_err {
                 AudioError::DeviceNotFound { .. } => (error_codes::NOT_FOUND, None),
+                AudioError::InvalidRequestBody { .. } => (error_codes::BAD_REQUEST, None),
                 AudioError::InvalidDeviceId => (error_codes::BAD_REQUEST, None),
                 AudioError::NoSessionsFound => (error_codes::NOT_FOUND, None),
                 _ => (error_codes::INTERNAL_ERROR, Some(session_err.to_string())),
