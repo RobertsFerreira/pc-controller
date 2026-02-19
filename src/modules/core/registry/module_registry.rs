@@ -27,8 +27,9 @@ impl ModuleRegistry {
 
         for module in self.modules.values() {
             router = router.merge(Arc::clone(module).routes());
+            let merge_router = router.clone();
+            router = router.nest("/api/v1", merge_router);
         }
-
         router
     }
 }

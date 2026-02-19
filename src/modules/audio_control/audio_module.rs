@@ -45,7 +45,7 @@ impl ModuleHandler for AudioModule {
 
         Router::new()
             .route(
-                "/api/v1/get_volume",
+                "/get_volume",
                 get(move || {
                     let module = Arc::clone(&for_get_volume);
                     async move {
@@ -57,7 +57,7 @@ impl ModuleHandler for AudioModule {
                 }),
             )
             .route(
-                "/api/v1/list_devices",
+                "/list_devices",
                 get(move || {
                     let module = Arc::clone(&for_list_device);
                     async move {
@@ -69,7 +69,7 @@ impl ModuleHandler for AudioModule {
                 }),
             )
             .route(
-                "/api/v1/list_session/{device_id}",
+                "/list_session/{device_id}",
                 get(move |Path(device_id): Path<String>| {
                     let module = Arc::clone(&for_list_session);
                     async move {
@@ -84,7 +84,7 @@ impl ModuleHandler for AudioModule {
                 }),
             )
             .route(
-                "/api/v1/set_group_volume",
+                "/set_group_volume",
                 post(
                     move |request: Result<Json<SetGroupVolumeRequest>, JsonRejection>| {
                         let module = Arc::clone(&for_set_group_volume);
