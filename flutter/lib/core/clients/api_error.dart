@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:pc_remote_control/core/errors/app_error.dart';
 
 class ApiError extends AppError {
@@ -10,18 +9,10 @@ class ApiError extends AppError {
     required this.statusCode,
   });
 
-  static ApiError mapDioError(DioException error, StackTrace stackTrace) {
+  static ApiError mapDioError(DioException error) {
     final statusCode = error.response?.statusCode;
     final errorId = DateTime.now().millisecondsSinceEpoch.toString();
     final userMessage = _userMessageFromDio(error, statusCode);
-
-    debugPrint(
-      '[http][$errorId] ${error.requestOptions.method} '
-      '${error.requestOptions.uri} failed '
-      '(status: ${statusCode ?? 'n/a'}, type: ${error.type})',
-    );
-    debugPrint('[http][$errorId] details: ${error.message}');
-    debugPrint('[http][$errorId] stack: $stackTrace');
 
     return ApiError._(
       message: '$userMessage Código de suporte: $errorId',

@@ -1,16 +1,41 @@
 # pc_remote_control
 
-A new Flutter project.
+Flutter client for PC Remote Control.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+```bash
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+## Logging Configuration
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The app reads logging configuration from `--dart-define` values.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Available keys:
+
+- `LOG_LEVEL` (`trace`, `debug`, `info`, `warning`, `error`)
+- `LOG_TO_CONSOLE` (`true` or `false`)
+- `LOG_TO_FILE` (`true` or `false`)
+- `LOG_FILE_NAME` (for example `pc_remote_control.log`)
+- `LOG_HTTP_BODY_IN_DEBUG` (`true` or `false`)
+
+Example:
+
+```bash
+flutter run \
+  --dart-define=CLIENT_URL=http://localhost:3000 \
+  --dart-define=API_VERSION=v1 \
+  --dart-define=LOG_LEVEL=info \
+  --dart-define=LOG_TO_CONSOLE=true \
+  --dart-define=LOG_TO_FILE=true \
+  --dart-define=LOG_FILE_NAME=pc_remote_control.log \
+  --dart-define=LOG_HTTP_BODY_IN_DEBUG=true
+```
+
+Notes:
+
+- Logs are emitted as JSON lines.
+- In debug, HTTP body logging is controlled by `LOG_HTTP_BODY_IN_DEBUG`.
+- In production, HTTP logs keep metadata only (no body).

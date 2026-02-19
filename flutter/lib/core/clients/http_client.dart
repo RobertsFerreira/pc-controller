@@ -1,15 +1,23 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pc_remote_control/core/clients/api_error.dart';
 import 'package:pc_remote_control/core/clients/api_response.dart';
+import 'package:pc_remote_control/core/clients/logging_interceptor.dart';
 import 'package:pc_remote_control/core/clients/retry_interceptor.dart';
 import 'package:pc_remote_control/core/di/service_locator.dart';
+import 'package:pc_remote_control/core/logging/app_logger.dart';
 import 'package:pc_remote_control/core/settings/app_settings.dart';
 
 class HttpClient {
   late final Dio _dio;
   final AppSettings _settings;
+  final AppLogger _logger;
 
-  HttpClient() : _settings = serviceLocator<AppSettings>() {
+  HttpClient({
+    required AppLogger logger,
+    AppSettings? settings,
+  }) : _logger = logger,
+       _settings = settings ?? serviceLocator<AppSettings>() {
     final baseUrl = "${_settings.clientUrl}/api/${_settings.apiVersion}";
     _dio = Dio(
       BaseOptions(
@@ -22,6 +30,13 @@ class HttpClient {
     );
     _dio.interceptors.add(
       RetryInterceptor(dio: _dio, retryConfig: _settings.retryConfig),
+    );
+    _dio.interceptors.add(
+      LoggingInterceptor(
+        logger: _logger,
+        logHttpBodyInDebug: _settings.logHttpBodyInDebug,
+        isDebugMode: kDebugMode,
+      ),
     );
   }
 
@@ -46,8 +61,8 @@ class HttpClient {
       }
 
       return ApiResponse.fromMap(data);
-    } on DioException catch (e, s) {
-      throw ApiError.mapDioError(e, s);
+    } on DioException catch (e) {
+      throw ApiError.mapDioError(e);
     }
   }
 
@@ -63,8 +78,8 @@ class HttpClient {
         queryParameters: queryParameters,
       );
       return response.data;
-    } on DioException catch (e, s) {
-      throw ApiError.mapDioError(e, s);
+    } on DioException catch (e) {
+      throw ApiError.mapDioError(e);
     }
   }
 }
