@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/di/injection_container.dart';
-import 'package:pc_remote_control/core/di/service_locator.dart';
-import 'package:pc_remote_control/core/logging/app_logger.dart';
-import 'package:pc_remote_control/core/logging/global_error_hooks.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupDependencies();
 
-  final logger = serviceLocator<AppLogger>();
-  configureGlobalErrorHooks(logger);
-
-  runAppWithErrorLogging(
-    logger,
-    () => runApp(const MyApp()),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

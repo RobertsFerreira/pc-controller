@@ -7,12 +7,6 @@ class AppSettings {
   late final Duration retryDelay;
   late final Duration maxRetryDelay;
   late final RetryConfig retryConfig;
-  //TODO: rever a necessidade dessas vars
-  late final String logLevel;
-  late final bool logToConsole;
-  late final bool logToFile;
-  late final String logFileName;
-  late final bool logHttpBodyInDebug;
 
   AppSettings() {
     clientUrl = String.fromEnvironment(
@@ -35,21 +29,6 @@ class AppSettings {
       maxAttempts: maxRetries,
       initialDelay: retryDelay,
       maxDelay: maxRetryDelay,
-    );
-
-    logLevel = String.fromEnvironment('LOG_LEVEL', defaultValue: 'info');
-    logToConsole = bool.fromEnvironment(
-      'LOG_TO_CONSOLE',
-      defaultValue: true,
-    );
-    logToFile = bool.fromEnvironment('LOG_TO_FILE', defaultValue: true);
-    logFileName = String.fromEnvironment(
-      'LOG_FILE_NAME',
-      defaultValue: 'pc_remote_control.log',
-    );
-    logHttpBodyInDebug = bool.fromEnvironment(
-      'LOG_HTTP_BODY_IN_DEBUG',
-      defaultValue: true,
     );
   }
 }
