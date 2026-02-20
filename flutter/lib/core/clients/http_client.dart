@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pc_remote_control/core/clients/api_error.dart';
 import 'package:pc_remote_control/core/clients/api_response.dart';
+import 'package:pc_remote_control/core/clients/app_logger.dart';
 import 'package:pc_remote_control/core/clients/retry_interceptor.dart';
 import 'package:pc_remote_control/core/di/service_locator.dart';
 import 'package:pc_remote_control/core/settings/app_settings.dart';
@@ -8,10 +9,13 @@ import 'package:pc_remote_control/core/settings/app_settings.dart';
 class HttpClient {
   late final Dio _dio;
   final AppSettings _settings;
+  final AppLogger _logger;
 
   HttpClient({
     AppSettings? settings,
-  }) : _settings = settings ?? serviceLocator<AppSettings>() {
+    AppLogger? logger,
+  }) : _settings = settings ?? serviceLocator<AppSettings>(),
+       _logger = logger ?? serviceLocator<AppLogger>() {
     final baseUrl = "${_settings.clientUrl}/api/${_settings.apiVersion}";
     _dio = Dio(
       BaseOptions(
@@ -27,7 +31,7 @@ class HttpClient {
     );
   }
 
-  Future<ApiResponse?> get<T>(
+  Future<ApiResponse<T>?> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
@@ -47,8 +51,9 @@ class HttpClient {
         );
       }
 
-      return ApiResponse.fromMap(data);
+      return ApiResponse<T>.fromMap(data);
     } on DioException catch (e) {
+      _logger.error('HTTP GET failed for path: $path', error: e);
       throw ApiError.mapDioError(e);
     }
   }
@@ -66,6 +71,7 @@ class HttpClient {
       );
       return response.data;
     } on DioException catch (e) {
+      _logger.error('HTTP POST failed for path: $path', error: e);
       throw ApiError.mapDioError(e);
     }
   }

@@ -18,8 +18,8 @@ class ResponseHeaders {
   }
 }
 
-class ApiResponse {
-  final dynamic data;
+class ApiResponse<T> {
+  final T data;
   final ResponseHeaders headers;
 
   ApiResponse({
@@ -32,7 +32,7 @@ class ApiResponse {
     final headers = mapFields.getMap<String, dynamic>('headers', {});
 
     return ApiResponse(
-      data: map['data'],
+      data: map['data'].cast<T>(),
       headers: ResponseHeaders.fromMap(headers),
     );
   }
