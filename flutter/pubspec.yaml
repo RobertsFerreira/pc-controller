@@ -38,10 +38,12 @@ dependencies:
   dio: ^5.9.1
   map_fields: ^0.0.5
   path_provider: ^2.1.5
+  logger: ^2.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mocktail: ^1.0.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
