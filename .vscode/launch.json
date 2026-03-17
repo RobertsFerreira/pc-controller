@@ -28,6 +28,12 @@
                     "--bin=pc-controller"
                 ]
             }
+        },
+        {
+            "name": "Pc remote (Flutter Windows)",
+            "type": "dart",
+            "request": "launch",
+            "program": "flutter/lib/main.dart",
         }
     ]
 }
