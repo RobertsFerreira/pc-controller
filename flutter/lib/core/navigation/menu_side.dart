@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pc_remote_control/core/components/menu_side/expansible_menu_side.dart';
+import 'package:pc_remote_control/core/components/menu_side/menu_side_tile.dart';
 import 'package:pc_remote_control/core/navigation/app_module.dart';
 
 class SideMenu extends StatelessWidget {
@@ -9,82 +11,131 @@ class SideMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final modules = AppModule.getMenuModules();
+    final scheme = Theme.of(context).colorScheme;
+    final menuEntries = [];
+    // final menuEntries = modules
+    //     .map(
+    //       (module) => MenuEntry(
+    //         module: module,
+    //         subEntries: module == AppModule.audio
+    //             ? const [
+    //                 SubMenuEntry(
+    //                   id: 'devices',
+    //                   title: 'Dispositivos',
+    //                   icon: Icons.speaker_outlined,
+    //                   isActive: true,
+    //                 ),
+    //                 SubMenuEntry(
+    //                   id: 'sessions',
+    //                   title: 'Sessoes',
+    //                   icon: Icons.graphic_eq_outlined,
+    //                   isActive: false,
+    //                 ),
+    //               ]
+    //             : const [],
+    //       ),
+    //     )
+    //     .toList();
+
+    final accent = scheme.primary;
+    final textMuted = scheme.onSurfaceVariant;
 
     return SizedBox(
       width: _menuSideWidth,
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Text(
-                    'Categories',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: ListView.separated(
-                      itemCount: modules.length,
-                      separatorBuilder: (_, index) => SizedBox(height: 20),
-                      itemBuilder: (_, index) {
-                        final module = modules[index];
-                        return Container(
-                          height: 40,
-                          width: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.blue[300],
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Row(
-                              children: [
-                                Icon(module.icon),
-                                const SizedBox(width: 20),
-                                Text(module.title),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      // children: modules.map((module) {
-                      //   final isSelected = module == currentModule;
-                      //   return Container(
-                      //     decoration: isSelected
-                      //         ? BoxDecoration(
-                      //             borderRadius: BorderRadius.circular(10),
-                      //             color: Colors.blue,
-                      //           )
-                      //         : null,
-                      //     child: ListTile(
-                      //       key: Key('module-menu-${module.name}'),
-                      //       leading: Icon(
-                      //         module.icon,
-                      //         color: isSelected ? Colors.white : null,
-                      //       ),
-                      //       title: Text(
-                      //         module.title,
-                      //         style: TextStyle(
-                      //           color: isSelected ? Colors.white : null,
-                      //         ),
-                      //       ),
-                      //       selected: isSelected,
-                      //     ),
-                      //   );
-                      // }).toList(),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF171B20),
+              Color(0xFF111418),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x66000000),
+              blurRadius: 20,
+              offset: Offset(6, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.dashboard_outlined,
+                      color: accent,
+                      size: 18,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Text(
+                    'Categorias',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: textMuted,
+                      letterSpacing: 0.6,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Divider(),
-        ],
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                itemCount: menuEntries.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 14),
+                itemBuilder: (context, index) {
+                  final entry = menuEntries[index];
+                  final isSelected = entry.module == currentModule;
+
+                  if (entry.hasSubEntry) {
+                    return MenuTile(
+                      title: entry.module.title,
+                      icon: entry.module.icon,
+                      isSelected: isSelected,
+                      accent: accent,
+                      muted: textMuted,
+                    );
+                  }
+
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                    ),
+                    child: ExpandableMenuTile(
+                      title: entry.module.title,
+                      icon: entry.module.icon,
+                      isSelected: isSelected,
+                      accent: accent,
+                      muted: textMuted,
+                      initiallyExpanded: isSelected,
+                      children: entry.subEntries,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
