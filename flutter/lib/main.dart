@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/di/injection_container.dart';
-import 'package:pc_remote_control/features/home/home_page.dart';
+import 'package:pc_remote_control/core/navigation/app_shell_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           textColor: Color(0xFFE6E7EB),
         ),
       ),
-      home: HomePage(),
+      home: const AppShellPage(),
     );
   }
 }

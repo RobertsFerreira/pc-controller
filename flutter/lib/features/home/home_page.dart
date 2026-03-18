@@ -1,27 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:pc_remote_control/core/navigation/app_module.dart';
-import 'package:pc_remote_control/core/navigation/menu_side.dart';
 
 class HomePage extends StatelessWidget {
-  final currentModule = AppModule.home;
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: Column(
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      padding: const EdgeInsets.all(28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Divider(),
+          Text(
+            'Painel Inicial',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Escolha um modulo no menu lateral para navegar entre as areas do app.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
           Expanded(
-            child: Row(
-              children: [
-                SideMenu(currentModule: currentModule),
-                VerticalDivider(),
-                Expanded(
-                  child: SizedBox(),
-                ),
-              ],
+            child: Center(
+              child: Text(
+                'Home Module',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
           ),
         ],

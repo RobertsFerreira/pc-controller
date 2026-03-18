@@ -1,43 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:pc_remote_control/features/audio/audio_page.dart';
-import 'package:pc_remote_control/features/home/home_page.dart';
+import 'package:pc_remote_control/core/di/di_container.dart';
 
-enum AppModule {
-  home(
-    title: 'Home',
-    icon: Icons.home_outlined,
-    order: 0,
-    enabled: true,
-  ),
-  audio(
-    title: 'Audio',
-    icon: Icons.volume_up_outlined,
-    order: 1,
-    enabled: true,
-  );
+typedef ModulePageBuilder = Widget Function(BuildContext context);
 
+class AppModuleNode {
+  final String id;
   final String title;
   final IconData icon;
   final int order;
   final bool enabled;
+  final ModulePageBuilder? pageBuilder;
+  final List<AppModuleNode> children;
 
-  const AppModule({
+  const AppModuleNode({
+    required this.id,
     required this.title,
     required this.icon,
     required this.order,
-    required this.enabled,
+    this.enabled = true,
+    this.pageBuilder,
+    this.children = const [],
   });
 
-  static List<AppModule> getMenuModules() {
-    final modules = AppModule.values.where((module) => module.enabled).toList();
-    modules.sort((left, right) => left.order.compareTo(right.order));
-    return modules;
-  }
+  bool get hasChildren => children.isNotEmpty;
+  bool get canOpenPage => pageBuilder != null;
+}
 
-  Widget get page {
-    return switch (this) {
-      home => HomePage(),
-      audio => AudioPage(),
-    };
-  }
+abstract interface class FeatureModule {
+  void register(DIContainer di);
+  AppModuleNode get navigation;
 }
