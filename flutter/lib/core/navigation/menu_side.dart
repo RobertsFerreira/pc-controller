@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/components/menu_side/expansible_menu_side.dart';
-import 'package:pc_remote_control/core/components/menu_side/menu_side_item.dart';
 import 'package:pc_remote_control/core/components/menu_side/menu_side_tile.dart';
 import 'package:pc_remote_control/core/di/service_locator.dart';
 import 'package:pc_remote_control/core/navigation/navigation_controller.dart';
@@ -17,16 +16,6 @@ class SideMenu extends StatelessWidget {
       animation: navigation,
       builder: (context, _) {
         final scheme = Theme.of(context).colorScheme;
-        //TODO: passar esse dado para o controller/state
-        final menuEntries = navigation.modules
-            .map((module) {
-              return MenuEntry.fromModule(
-                module,
-                selectedId: navigation.selectedId,
-                expandedIds: navigation.expandedIds,
-              );
-            })
-            .toList(growable: false);
 
         final accent = scheme.primary;
         final textMuted = scheme.onSurfaceVariant;
@@ -90,10 +79,10 @@ class SideMenu extends StatelessWidget {
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    itemCount: menuEntries.length,
+                    itemCount: navigation.menuEntries.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 14),
                     itemBuilder: (context, index) {
-                      final entry = menuEntries[index];
+                      final entry = navigation.menuEntries[index];
 
                       if (!entry.hasChildren) {
                         return MenuTile(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pc_remote_control/core/components/menu_side/menu_side_item.dart';
 import 'package:pc_remote_control/core/navigation/app_module.dart';
 import 'package:pc_remote_control/core/navigation/module_registry.dart';
 
@@ -48,4 +49,14 @@ class NavigationController extends ChangeNotifier {
     _expandedIds.addAll(_registry.ancestorIdsOf(id));
     notifyListeners();
   }
+
+  List get menuEntries => modules
+      .map((module) {
+        return MenuEntry.fromModule(
+          module,
+          selectedId: selectedId,
+          expandedIds: expandedIds,
+        );
+      })
+      .toList(growable: false);
 }
