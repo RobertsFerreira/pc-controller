@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/navigation/app_module.dart';
 import 'package:pc_remote_control/core/navigation/module_registry.dart';
 
+//TODO: rever uso para bloc ou valuenotifier
 class NavigationController extends ChangeNotifier {
   final ModuleRegistry _registry;
   final Set<String> _expandedIds = {};

@@ -29,6 +29,7 @@ class ExpandableMenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         Material(
@@ -84,20 +85,19 @@ class ExpandableMenuTile extends StatelessWidget {
             heightFactor: isExpanded ? 1 : 0,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(28, 0, 12, 12),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: children.length,
-                itemBuilder: (_, index) {
-                  final child = children[index];
-                  return MenuTile(
-                    title: child.title,
-                    icon: child.icon,
-                    accent: accent,
-                    muted: muted,
-                    isSelected: child.isSelected,
-                    onTap: () => onChildTap(child.id),
-                  );
-                },
+              child: Column(
+                children: children
+                    .map((child) {
+                      return MenuTile(
+                        title: child.title,
+                        icon: child.icon,
+                        accent: accent,
+                        muted: muted,
+                        isSelected: child.isSelected,
+                        onTap: () => onChildTap(child.id),
+                      );
+                    })
+                    .toList(growable: false),
               ),
             ),
           ),

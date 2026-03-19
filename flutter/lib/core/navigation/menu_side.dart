@@ -17,6 +17,7 @@ class SideMenu extends StatelessWidget {
       animation: navigation,
       builder: (context, _) {
         final scheme = Theme.of(context).colorScheme;
+        //TODO: passar esse dado para o controller/state
         final menuEntries = navigation.modules
             .map((module) {
               return MenuEntry.fromModule(

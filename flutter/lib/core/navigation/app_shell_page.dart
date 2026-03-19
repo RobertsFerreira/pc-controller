@@ -18,7 +18,7 @@ class AppShellPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(currentModule?.title ?? 'Control Hub'),
+            title: Text('Control Hub'),
           ),
           body: Column(
             children: [
