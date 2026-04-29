@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/components/menu_side/menu_side_item.dart';
 import 'package:pc_remote_control/core/components/menu_side/menu_side_tile.dart';
+import 'package:pc_remote_control/core/theme/theme_context.dart';
 
 class ExpandableMenuTile extends StatelessWidget {
   final String title;
@@ -28,33 +29,36 @@ class ExpandableMenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colorScheme;
+    final layout = context.appLayoutTokens;
+    final sideMenu = context.sideMenuTokens;
+    final colors = context.appColorTokens;
 
     return Column(
       children: [
         Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(layout.radiusLg),
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: sideMenu.tilePadding,
               child: Row(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: layout.tileIconContainerSize,
+                    height: layout.tileIconContainerSize,
                     decoration: BoxDecoration(
-                      color: scheme.surface.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(10),
+                      color: colors.surfaceOverlay,
+                      borderRadius: BorderRadius.circular(layout.radiusMd),
                     ),
                     child: Icon(
                       icon,
                       color: isSelected ? accent : muted,
-                      size: 18,
+                      size: layout.tileIconSize,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: layout.tileGap),
                   Expanded(
                     child: Text(
                       title,
@@ -84,7 +88,7 @@ class ExpandableMenuTile extends StatelessWidget {
             duration: const Duration(milliseconds: 180),
             heightFactor: isExpanded ? 1 : 0,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 0, 12, 12),
+              padding: sideMenu.childPadding,
               child: Column(
                 children: children
                     .map((child) {

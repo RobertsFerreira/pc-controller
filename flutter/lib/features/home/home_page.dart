@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:pc_remote_control/core/theme/theme_context.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colorScheme;
+    final layout = context.appLayoutTokens;
 
     return Container(
       decoration: BoxDecoration(
         color: scheme.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(layout.radiusXl),
       ),
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(layout.spacing2xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Painel Inicial',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: context.textTheme.headlineSmall,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: layout.spacingMd),
           Text(
             'Escolha um modulo no menu lateral para navegar entre as areas do app.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            style: context.textTheme.bodyLarge?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: layout.spacingXl),
           Expanded(
             child: Center(
               child: Text(
                 'Home Module',
-                style: Theme.of(context).textTheme.titleLarge,
+                style: context.textTheme.titleLarge,
               ),
             ),
           ),

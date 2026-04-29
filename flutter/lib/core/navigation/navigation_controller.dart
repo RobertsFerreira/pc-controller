@@ -50,13 +50,15 @@ class NavigationController extends ChangeNotifier {
     notifyListeners();
   }
 
-  List get menuEntries => modules
-      .map((module) {
-        return MenuEntry.fromModule(
-          module,
-          selectedId: selectedId,
-          expandedIds: expandedIds,
-        );
-      })
-      .toList(growable: false);
+  List<MenuEntry> get menuEntries {
+    return modules
+        .map((module) {
+          return MenuEntry.fromModule(
+            module,
+            selectedId: selectedId,
+            expandedIds: expandedIds,
+          );
+        })
+        .toList(growable: false);
+  }
 }

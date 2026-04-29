@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pc_remote_control/core/theme/theme_context.dart';
 
 class AudioPage extends StatelessWidget {
   final String title;
@@ -12,35 +13,36 @@ class AudioPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colorScheme;
+    final layout = context.appLayoutTokens;
 
     return Container(
       decoration: BoxDecoration(
         color: scheme.surface,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(layout.radiusXl),
       ),
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(layout.spacing2xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: context.textTheme.headlineSmall,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: layout.spacingMd),
           Text(
             description,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            style: context.textTheme.bodyLarge?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: layout.spacingXl),
           Expanded(
             child: Center(
               child: Text(
                 title,
                 key: const Key('audio-module-page'),
-                style: Theme.of(context).textTheme.titleLarge,
+                style: context.textTheme.titleLarge,
               ),
             ),
           ),

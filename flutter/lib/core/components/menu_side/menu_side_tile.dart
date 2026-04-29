@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pc_remote_control/core/theme/theme_context.dart';
 
 class MenuTile extends StatelessWidget {
   final String title;
@@ -20,7 +21,10 @@ class MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colorScheme;
+    final layout = context.appLayoutTokens;
+    final sideMenu = context.sideMenuTokens;
+    final colors = context.appColorTokens;
     final iconColor = isSelected ? accent : muted;
     final textColor = isSelected ? scheme.onSurface : muted;
 
@@ -29,22 +33,22 @@ class MenuTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(layout.radiusLg),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: sideMenu.tilePadding,
           child: Row(
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: layout.tileIconContainerSize,
+                height: layout.tileIconContainerSize,
                 decoration: BoxDecoration(
-                  color: scheme.surface.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(10),
+                  color: colors.surfaceOverlay,
+                  borderRadius: BorderRadius.circular(layout.radiusMd),
                 ),
-                child: Icon(icon, color: iconColor, size: 18),
+                child: Icon(icon, color: iconColor, size: layout.tileIconSize),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: layout.tileGap),
               Expanded(
                 child: Text(
                   title,
@@ -57,8 +61,8 @@ class MenuTile extends StatelessWidget {
               ),
               if (isSelected)
                 Container(
-                  width: 6,
-                  height: 6,
+                  width: layout.selectionIndicatorSize,
+                  height: layout.selectionIndicatorSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: accent,
