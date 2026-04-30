@@ -9,6 +9,10 @@
   - DI com `get_it`
   - navegacao por `FeatureModule` e `AppModuleNode`
 
+## Subagents
+
+- Sempre que uma instrucao mencionar `subagent`, procure agentes locais em `C:\Users\rober\.codex\agents`.
+
 ## Comandos uteis
 
 ```bash

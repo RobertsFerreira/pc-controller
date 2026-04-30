@@ -8,6 +8,10 @@
 - O backend ativo hoje e HTTP com `axum`. WebSocket existe como legado e nao deve ser tratado como fluxo principal.
 - Se a tarefa for no Flutter, leia tambem `flutter/AGENTS.md`.
 
+## Subagents
+
+- Sempre que uma instrucao mencionar `subagent`, procure agentes locais em `C:\Users\rober\.codex\agents`.
+
 ## Backend Rust
 
 ### Fluxo principal
