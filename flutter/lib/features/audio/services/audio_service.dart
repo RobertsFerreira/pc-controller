@@ -12,7 +12,7 @@ class AudioService {
   Future<List<DeviceSound>> listDevices() async {
     final response = await client.get<DevicesApi>('/list_devices');
 
-    if (response == null) return [];
+    if (response == null || response.data == null) return [];
 
     final devicesRaw = response.data as List;
     final devices = devicesRaw
@@ -25,7 +25,7 @@ class AudioService {
   Future<List<AudioSession>> listSessions(String deviceId) async {
     final response = await client.get<SessionsApi>('/list_session/$deviceId');
 
-    if (response == null) return [];
+    if (response == null || response.data == null) return [];
 
     final sessions = response.data.map(AudioSession.fromMap).toList();
     return sessions;
