@@ -16,10 +16,9 @@ class HttpClient {
     AppLogger? logger,
   }) : _settings = settings ?? serviceLocator<AppSettings>(),
        _logger = logger ?? serviceLocator<AppLogger>() {
-    final baseUrl = "${_settings.clientUrl}/api/${_settings.apiVersion}";
     _dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl,
+        baseUrl: _settings.clientUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         sendTimeout: const Duration(seconds: 10),
@@ -31,7 +30,7 @@ class HttpClient {
     );
   }
 
-  Future<ApiResponse<T>?> get<T>(
+  Future<ApiResponse?> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
@@ -51,7 +50,7 @@ class HttpClient {
         );
       }
 
-      return ApiResponse<T>.fromMap(data);
+      return ApiResponse.fromMap(data);
     } on DioException catch (e) {
       _logger.error('HTTP GET failed for path: $path', error: e);
       throw ApiError.mapDioError(e);

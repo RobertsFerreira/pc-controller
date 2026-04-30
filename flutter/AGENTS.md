@@ -52,4 +52,6 @@ flutter run --dart-define=CLIENT_URL=http://localhost:3000 --dart-define=API_VER
 
 - Testes atuais ficam em `test/core/` e `test/features/`.
 - Prefira mockar `HttpClient` ou servicos, evitando dependencia de backend real.
+- Quando mocks e fakes forem igualmente viaveis, prefira `mocktail` para manter os testes menores e com menos helpers customizados.
+- Use fakes apenas quando o comportamento sob teste ficar mais claro com um dublê simples do que com stubs/verifies de mock.
 - Se alterar contrato HTTP, atualize testes de servico junto.

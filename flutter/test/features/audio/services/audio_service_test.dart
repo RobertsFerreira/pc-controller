@@ -43,14 +43,15 @@ void main() {
       when(() {
         return mockHttpClient.get<DevicesApi>(
           '/list_devices',
-          queryParameters: null,
         );
       }).thenAnswer((_) async => null);
 
       final devices = await service.listDevices();
 
       expect(devices, isEmpty);
-      verify(() => mockHttpClient.get<DevicesApi>('/list_devices')).called(1);
+      verify(
+        () => mockHttpClient.get<DevicesApi>('/list_devices'),
+      ).called(1);
     });
 
     test('rethrows client exception', () async {

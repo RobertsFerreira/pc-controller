@@ -10,11 +10,9 @@ class AppSettings {
 
   AppSettings() {
     clientUrl = String.fromEnvironment(
-      'CLIENT_URL',
-      defaultValue: 'http://localhost:3000',
+      'API_URL',
+      defaultValue: "http://localhost:3000/api/v1",
     );
-
-    apiVersion = String.fromEnvironment('API_VERSION');
 
     maxRetries = int.fromEnvironment('MAX_RETRIES', defaultValue: 3);
 
