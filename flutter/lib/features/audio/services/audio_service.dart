@@ -27,7 +27,11 @@ class AudioService {
 
     if (response == null || response.data == null) return [];
 
-    final sessions = response.data.map(AudioSession.fromMap).toList();
+    final sessionsRaw = response.data as List;
+    final sessions = sessionsRaw
+        .cast<Map<String, dynamic>>()
+        .map(AudioSession.fromMap)
+        .toList();
     return sessions;
   }
 }

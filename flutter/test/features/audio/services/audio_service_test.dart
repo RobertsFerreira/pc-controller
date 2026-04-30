@@ -64,4 +64,64 @@ void main() {
       verify(() => mockHttpClient.get<DevicesApi>('/list_devices')).called(1);
     });
   });
+
+  group('AudioService.listSessions', () {
+    test('returns parsed audio sessions when api returns data', () async {
+      final apiResponse = ApiResponse(
+        data: [
+          {
+            'id': 'session-1',
+            'display_name': 'Spotify',
+            'volume_level': 55.0,
+            'state': 'active',
+            'muted': false,
+          },
+        ],
+        headers: ResponseHeaders(timestamp: 123, count: 1),
+      );
+
+      when(
+        () => mockHttpClient.get<SessionsApi>('/list_session/device-1'),
+      ).thenAnswer((_) async => apiResponse);
+
+      final sessions = await service.listSessions('device-1');
+
+      expect(sessions, hasLength(1));
+      expect(sessions.single.id, 'session-1');
+      expect(sessions.single.displayName, 'Spotify');
+      expect(sessions.single.volumeLevel, 55.0);
+      expect(sessions.single.state.name, 'active');
+      expect(sessions.single.muted, isFalse);
+      verify(
+        () => mockHttpClient.get<SessionsApi>('/list_session/device-1'),
+      ).called(1);
+    });
+
+    test('returns empty list when sessions api response is null', () async {
+      when(() {
+        return mockHttpClient.get<SessionsApi>(
+          '/list_session/device-1',
+        );
+      }).thenAnswer((_) async => null);
+
+      final sessions = await service.listSessions('device-1');
+
+      expect(sessions, isEmpty);
+      verify(
+        () => mockHttpClient.get<SessionsApi>('/list_session/device-1'),
+      ).called(1);
+    });
+
+    test('rethrows client exception for sessions request', () async {
+      final exception = Exception('network failed');
+      when(
+        () => mockHttpClient.get<SessionsApi>('/list_session/device-1'),
+      ).thenThrow(exception);
+
+      await expectLater(service.listSessions('device-1'), throwsA(exception));
+      verify(
+        () => mockHttpClient.get<SessionsApi>('/list_session/device-1'),
+      ).called(1);
+    });
+  });
 }
