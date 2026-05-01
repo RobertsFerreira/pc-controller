@@ -3,22 +3,13 @@ import 'package:pc_remote_control/core/errors/app_error.dart';
 
 class ApiError extends AppError {
   final int? statusCode;
-  ApiError._({
-    required super.message,
-    required super.errorId,
-    required this.statusCode,
-  });
+  ApiError._({required super.message, required this.statusCode});
 
   static ApiError mapDioError(DioException error) {
     final statusCode = error.response?.statusCode;
-    final errorId = DateTime.now().millisecondsSinceEpoch.toString();
     final userMessage = _userMessageFromDio(error, statusCode);
 
-    return ApiError._(
-      message: '$userMessage Código de suporte: $errorId',
-      errorId: errorId,
-      statusCode: statusCode,
-    );
+    return ApiError._(message: userMessage, statusCode: statusCode);
   }
 
   static String _userMessageFromDio(DioException error, int? statusCode) {
@@ -52,8 +43,5 @@ class ApiError extends AppError {
 }
 
 class ApiReturnTypeError extends AppError {
-  ApiReturnTypeError({
-    required super.message,
-    required super.errorId,
-  });
+  ApiReturnTypeError({required super.message});
 }

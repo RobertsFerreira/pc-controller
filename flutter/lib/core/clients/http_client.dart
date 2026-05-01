@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:pc_remote_control/core/clients/api_error.dart';
 import 'package:pc_remote_control/core/clients/api_response.dart';
-import 'package:pc_remote_control/core/clients/app_logger.dart';
 import 'package:pc_remote_control/core/clients/retry_interceptor.dart';
 import 'package:pc_remote_control/core/di/service_locator.dart';
 import 'package:pc_remote_control/core/settings/app_settings.dart';
@@ -9,13 +8,9 @@ import 'package:pc_remote_control/core/settings/app_settings.dart';
 class HttpClient {
   late final Dio _dio;
   final AppSettings _settings;
-  final AppLogger _logger;
 
-  HttpClient({
-    AppSettings? settings,
-    AppLogger? logger,
-  }) : _settings = settings ?? serviceLocator<AppSettings>(),
-       _logger = logger ?? serviceLocator<AppLogger>() {
+  HttpClient({AppSettings? settings})
+    : _settings = settings ?? serviceLocator<AppSettings>() {
     _dio = Dio(
       BaseOptions(
         baseUrl: _settings.clientUrl,
@@ -44,15 +39,11 @@ class HttpClient {
       if (data == null) return null;
 
       if (data is! Map<String, dynamic>) {
-        throw ApiReturnTypeError(
-          message: 'Invalid type for return by api',
-          errorId: '',
-        );
+        throw ApiReturnTypeError(message: 'Invalid type for return by api');
       }
 
       return ApiResponse.fromMap(data);
     } on DioException catch (e) {
-      _logger.error('HTTP GET failed for path: $path', error: e);
       throw ApiError.mapDioError(e);
     }
   }
@@ -70,7 +61,6 @@ class HttpClient {
       );
       return response.data;
     } on DioException catch (e) {
-      _logger.error('HTTP POST failed for path: $path', error: e);
       throw ApiError.mapDioError(e);
     }
   }
