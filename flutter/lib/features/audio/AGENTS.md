@@ -9,11 +9,12 @@
 ## Estrutura Importante
 
 - `audio_feature_module.dart`: registra `AudioService` e `AudioBrowserController`.
+- `audio_page.dart`: pagina unica da feature com selecao de saida e lista de sessoes.
 - `services/audio_service.dart`: conversa com a API via `HttpClient`.
 - `state/audio_browser_controller.dart`: orquestra carregamento e selecao.
 - `state/audio_browser_state.dart`: estado observado pela UI.
 - `models/` e `errors/`: contrato e tratamento local da feature.
-- `audio_devices_page.dart` e `audio_sessions_page.dart`: telas reais da feature.
+- `widgets/`: componentes visuais reutilizaveis da feature.
 
 ## Regras de Alteracao
 
@@ -27,8 +28,9 @@
   - `models/`
   - `state/`
   - testes da feature
-- Mantenha o controller compartilhado coerente entre as paginas de dispositivos e sessoes.
+- Mantenha a pagina unica de audio enxuta, delegando a apresentacao para os componentes em `widgets/`.
 - Preserve tokens de layout e tema via `theme_context.dart`; evite estilos soltos na feature.
+- Textos visiveis para o usuario devem sair do catalogo em `assets/i18n/`.
 
 ## Testes
 

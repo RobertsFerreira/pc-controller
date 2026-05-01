@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/di/injection_container.dart';
 import 'package:pc_remote_control/core/navigation/app_shell_page.dart';
 import 'package:pc_remote_control/core/theme/app_theme.dart';
+import 'package:pc_remote_control/l10n/generated/app_localizations.dart';
+import 'package:pc_remote_control/l10n/l10n_context.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +18,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Control Hub',
+      debugShowCheckedModeBanner: false,
+      onGenerateTitle: (context) => context.l10n.appTitle,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.darkTheme,
       home: const AppShellPage(),
     );

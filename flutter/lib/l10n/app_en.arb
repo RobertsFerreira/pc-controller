@@ -1,0 +1,233 @@
+{
+  "appTitle": "Control Hub",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "navigationCategories": "Categories",
+  "@navigationCategories": {
+    "description": "Side menu section title"
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Home module title"
+  },
+  "navAudio": "Audio deck",
+  "@navAudio": {
+    "description": "Audio module title"
+  },
+  "homeTitle": "Welcome center",
+  "@homeTitle": {
+    "description": "Home page title"
+  },
+  "homeDescription": "Choose a module from the side menu to navigate through the app areas.",
+  "@homeDescription": {
+    "description": "Home page description"
+  },
+  "homePlaceholder": "Select an area to begin",
+  "@homePlaceholder": {
+    "description": "Home page placeholder text"
+  },
+  "audioPageEyebrow": "Live panel",
+  "@audioPageEyebrow": {
+    "description": "Audio page eyebrow"
+  },
+  "audioPageTitle": "Real-time audio",
+  "@audioPageTitle": {
+    "description": "Audio page title"
+  },
+  "audioPageDescription": "Choose an output and follow, in a single screen, which apps are using that audio right now.",
+  "@audioPageDescription": {
+    "description": "Audio page description"
+  },
+  "audioHeroBadge": "Quick studio",
+  "@audioHeroBadge": {
+    "description": "Audio hero badge"
+  },
+  "audioHeroTitle": "Control sound without guessing",
+  "@audioHeroTitle": {
+    "description": "Audio hero title"
+  },
+  "audioHeroDescription": "See the active output, the apps currently playing, and the volume of each session in a clearer control deck.",
+  "@audioHeroDescription": {
+    "description": "Audio hero description"
+  },
+  "audioHeroDevicesMetric": "Ready outputs",
+  "@audioHeroDevicesMetric": {
+    "description": "Metric label for devices"
+  },
+  "audioHeroAppsMetric": "Tracked apps",
+  "@audioHeroAppsMetric": {
+    "description": "Metric label for apps"
+  },
+  "audioHeroMutedMetric": "Muted",
+  "@audioHeroMutedMetric": {
+    "description": "Metric label for muted sessions"
+  },
+  "audioSelectorTitle": "Sound destination",
+  "@audioSelectorTitle": {
+    "description": "Audio selector card title"
+  },
+  "audioSelectorDescription": "Choose where you want to inspect this computer's audio.",
+  "@audioSelectorDescription": {
+    "description": "Audio selector card description"
+  },
+  "audioSelectorFieldLabel": "Audio output",
+  "@audioSelectorFieldLabel": {
+    "description": "Audio selector field label"
+  },
+  "audioSelectorFieldHint": "Select an output",
+  "@audioSelectorFieldHint": {
+    "description": "Audio selector field hint"
+  },
+  "audioSelectorDevicesCount": "{count, plural, =1{1 output available} other{{count} outputs available}}",
+  "@audioSelectorDevicesCount": {
+    "description": "Number of outputs available",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "audioSelectorRefresh": "Refresh outputs",
+  "@audioSelectorRefresh": {
+    "description": "Refresh outputs button"
+  },
+  "audioSelectorReloadSessions": "Refresh apps",
+  "@audioSelectorReloadSessions": {
+    "description": "Reload sessions button"
+  },
+  "audioSelectorDeviceFallback": "Unnamed output",
+  "@audioSelectorDeviceFallback": {
+    "description": "Fallback text for unnamed output device"
+  },
+  "audioOverviewTitle": "Quick read",
+  "@audioOverviewTitle": {
+    "description": "Overview card title"
+  },
+  "audioOverviewEmpty": "Choose an output to see a live summary of apps and overall status.",
+  "@audioOverviewEmpty": {
+    "description": "Overview empty state"
+  },
+  "audioOverviewDeviceId": "Identifier",
+  "@audioOverviewDeviceId": {
+    "description": "Label for device id"
+  },
+  "audioOverviewAppsCount": "{count, plural, =1{1 app} other{{count} apps}}",
+  "@audioOverviewAppsCount": {
+    "description": "Apps count in overview",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "audioOverviewMuted": "There are muted apps",
+  "@audioOverviewMuted": {
+    "description": "Muted apps indicator"
+  },
+  "audioOverviewLive": "Live connection",
+  "@audioOverviewLive": {
+    "description": "Overview live indicator"
+  },
+  "audioSessionsTitle": "Apps with sound",
+  "@audioSessionsTitle": {
+    "description": "Sessions panel title"
+  },
+  "audioSessionsDescription": "Each card shows volume, current activity, and whether the session is muted.",
+  "@audioSessionsDescription": {
+    "description": "Sessions panel description"
+  },
+  "audioSessionsLiveChip": "Live updates",
+  "@audioSessionsLiveChip": {
+    "description": "Sessions panel live chip"
+  },
+  "audioSessionsEmptyName": "Unnamed app",
+  "@audioSessionsEmptyName": {
+    "description": "Fallback text for unnamed app"
+  },
+  "audioSessionsIdLabel": "ID {id}",
+  "@audioSessionsIdLabel": {
+    "description": "Session id label",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "audioLoadingDevicesTitle": "Loading outputs",
+  "@audioLoadingDevicesTitle": {
+    "description": "Loading title for outputs"
+  },
+  "audioLoadingDevicesMessage": "Looking for the audio destinations available on this computer.",
+  "@audioLoadingDevicesMessage": {
+    "description": "Loading message for outputs"
+  },
+  "audioDevicesErrorTitle": "Could not load outputs",
+  "@audioDevicesErrorTitle": {
+    "description": "Error title for outputs"
+  },
+  "audioDevicesErrorMessage": "Try again in a moment.",
+  "@audioDevicesErrorMessage": {
+    "description": "Error message for outputs"
+  },
+  "audioDevicesEmptyTitle": "No outputs found",
+  "@audioDevicesEmptyTitle": {
+    "description": "Empty title for outputs"
+  },
+  "audioDevicesEmptyMessage": "Connect an audio device and refresh the list to continue.",
+  "@audioDevicesEmptyMessage": {
+    "description": "Empty message for outputs"
+  },
+  "audioSelectPromptTitle": "Choose an output to continue",
+  "@audioSelectPromptTitle": {
+    "description": "Prompt title to select output"
+  },
+  "audioSelectPromptMessage": "As soon as you pick an output, the apps with sound will appear here.",
+  "@audioSelectPromptMessage": {
+    "description": "Prompt message to select output"
+  },
+  "audioSessionsLoadingTitle": "Refreshing apps",
+  "@audioSessionsLoadingTitle": {
+    "description": "Loading title for sessions"
+  },
+  "audioSessionsLoadingMessage": "Fetching the audio sessions for the selected output.",
+  "@audioSessionsLoadingMessage": {
+    "description": "Loading message for sessions"
+  },
+  "audioSessionsErrorTitle": "Could not load apps",
+  "@audioSessionsErrorTitle": {
+    "description": "Error title for sessions"
+  },
+  "audioSessionsErrorMessage": "Try another output or refresh the list.",
+  "@audioSessionsErrorMessage": {
+    "description": "Error message for sessions"
+  },
+  "audioSessionsEmptyTitle": "No apps with visible audio",
+  "@audioSessionsEmptyTitle": {
+    "description": "Empty title for sessions"
+  },
+  "audioSessionsEmptyMessage": "When an app starts playing through this output, it will show up in this panel.",
+  "@audioSessionsEmptyMessage": {
+    "description": "Empty message for sessions"
+  },
+  "audioSessionActive": "Now playing",
+  "@audioSessionActive": {
+    "description": "Active audio session state"
+  },
+  "audioSessionInactive": "Idle",
+  "@audioSessionInactive": {
+    "description": "Inactive audio session state"
+  },
+  "audioSessionExpired": "Closed",
+  "@audioSessionExpired": {
+    "description": "Expired audio session state"
+  },
+  "audioSessionMuted": "Muted",
+  "@audioSessionMuted": {
+    "description": "Muted state label"
+  },
+  "audioSessionUnmuted": "Audio active",
+  "@audioSessionUnmuted": {
+    "description": "Unmuted state label"
+  }
+}
