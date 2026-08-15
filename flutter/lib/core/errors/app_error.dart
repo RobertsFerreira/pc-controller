@@ -1,12 +1,8 @@
 class AppError implements Exception {
   final String message;
 
-  AppError({
-    required this.message,
-  });
+  AppError({required this.message});
 
   @override
-  String toString() {
-    return message;
-  }
+  String toString() => message;
 }

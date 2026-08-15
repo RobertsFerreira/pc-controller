@@ -7,10 +7,7 @@ class RetryInterceptor extends Interceptor {
   final Dio dio;
   final RetryConfig retryConfig;
 
-  RetryInterceptor({
-    required this.dio,
-    required this.retryConfig,
-  });
+  RetryInterceptor({required this.dio, required this.retryConfig});
 
   @override
   Future<void> onError(
