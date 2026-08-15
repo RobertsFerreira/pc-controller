@@ -43,7 +43,9 @@ class AudioBrowserState {
           : (selectedDeviceId ?? this.selectedDeviceId),
       devicesStatus: devicesStatus ?? this.devicesStatus,
       sessionsStatus: sessionsStatus ?? this.sessionsStatus,
-      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearErrorMessage
+          ? null
+          : (errorMessage ?? this.errorMessage),
     );
   }
 }

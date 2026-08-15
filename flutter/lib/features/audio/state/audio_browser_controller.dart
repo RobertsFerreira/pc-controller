@@ -17,9 +17,19 @@ class AudioBrowserController extends ValueNotifier<AudioBrowserState> {
 
     try {
       final devices = await service.listDevices();
+      final selectedDeviceId = value.selectedDeviceId;
+      final keepsSelectedDevice =
+          selectedDeviceId != null &&
+          devices.any((device) => device.id == selectedDeviceId);
+
       value = value.copyWith(
         devices: devices,
+        sessions: keepsSelectedDevice ? value.sessions : const [],
+        clearSelectedDeviceId: !keepsSelectedDevice,
         devicesStatus: AudioLoadStatus.success,
+        sessionsStatus: keepsSelectedDevice
+            ? value.sessionsStatus
+            : AudioLoadStatus.idle,
       );
     } catch (error) {
       value = value.copyWith(

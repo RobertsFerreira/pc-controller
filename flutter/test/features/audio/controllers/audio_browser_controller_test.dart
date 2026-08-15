@@ -4,6 +4,7 @@ import 'package:pc_remote_control/features/audio/models/audio_request.dart';
 import 'package:pc_remote_control/features/audio/models/audio_session.dart';
 import 'package:pc_remote_control/features/audio/services/audio_service.dart';
 import 'package:pc_remote_control/features/audio/state/audio_browser_controller.dart';
+import 'package:pc_remote_control/features/audio/state/audio_browser_state.dart';
 
 class MockAudioService extends Mock implements AudioService {}
 
@@ -60,6 +61,41 @@ void main() {
       expect(controller.value.sessions, hasLength(1));
       verify(() => mockAudioService.listDevices()).called(1);
       verify(() => mockAudioService.listSessions('device-1')).called(1);
+    });
+
+    test('refreshing devices clears an unavailable selected device', () async {
+      when(
+        () => mockAudioService.listDevices(),
+      ).thenAnswer(
+        (_) async => [
+          DeviceSound(id: 'device-1', name: 'Speakers'),
+        ],
+      );
+      when(
+        () => mockAudioService.listSessions('device-1'),
+      ).thenAnswer(
+        (_) async => [
+          AudioSession(
+            id: 'session-1',
+            displayName: 'Spotify',
+            volumeLevel: 55,
+            state: AudioSessionState.active,
+            muted: false,
+          ),
+        ],
+      );
+
+      await controller.loadDevices();
+      await controller.selectDevice('device-1');
+
+      when(() => mockAudioService.listDevices()).thenAnswer((_) async => []);
+
+      await controller.loadDevices();
+
+      expect(controller.value.selectedDeviceId, isNull);
+      expect(controller.value.sessions, isEmpty);
+      expect(controller.value.sessionsStatus, AudioLoadStatus.idle);
+      verify(() => mockAudioService.listDevices()).called(2);
     });
   });
 }

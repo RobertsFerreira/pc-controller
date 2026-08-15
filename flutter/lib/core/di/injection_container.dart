@@ -1,5 +1,6 @@
 import 'package:pc_remote_control/core/clients/http_client.dart';
 import 'package:pc_remote_control/core/settings/app_settings.dart';
+import 'package:pc_remote_control/features/audio/audio_feature_module.dart';
 
 import 'service_locator.dart';
 
@@ -10,4 +11,6 @@ void setupDependencies() {
   serviceLocator.registerLazySingleton<HttpClient>(
     () => HttpClient(settings: serviceLocator<AppSettings>()),
   );
+
+  registerAudioFeatureDependencies();
 }

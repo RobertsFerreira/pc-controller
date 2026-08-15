@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pc_remote_control/core/di/injection_container.dart';
+import 'package:pc_remote_control/features/audio/audio_page.dart';
+import 'package:pc_remote_control/features/audio/theme/theme_context.dart';
 import 'package:pc_remote_control/l10n/generated/app_localizations.dart';
 import 'package:pc_remote_control/l10n/l10n_context.dart';
 
@@ -20,7 +22,8 @@ class MyApp extends StatelessWidget {
       onGenerateTitle: (context) => context.l10n.appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: Container(),
+      theme: buildAudioAppTheme(),
+      home: const AudioPage(),
     );
   }
 }
